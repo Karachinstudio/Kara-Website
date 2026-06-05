@@ -79,9 +79,25 @@
 
       item.className = "feed-item";
       link.href = work.href || "#";
+      image.className = "is-loading";
+      image.loading = "lazy";
+      image.decoding = "async";
       image.src = work.src;
       image.alt = work.alt || work.title;
       title.textContent = work.title;
+
+      if (image.complete) {
+        image.classList.remove("is-loading");
+        image.classList.add("is-loaded");
+      } else {
+        image.addEventListener("load", () => {
+          image.classList.remove("is-loading");
+          image.classList.add("is-loaded");
+        }, { once: true });
+        image.addEventListener("error", () => {
+          image.classList.remove("is-loading");
+        }, { once: true });
+      }
 
       link.append(image, title);
       item.append(link);
