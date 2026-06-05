@@ -397,14 +397,13 @@
       overlay.disableRemotePlayback = true;
       overlay.controlsList = "nodownload noplaybackrate noremoteplayback";
       overlay.muted = true;
-      overlay.src = set.mov + "?t=" + Date.now();
+      overlay.src = "click01.mp4?t=" + Date.now();
       overlay.currentTime = 0;
       overlay.loop = false;
       overlay.playbackRate = 1.25;
       overlay.style.left = x + "px";
       overlay.style.top = y + "px";
       overlay.style.width = getCurrentClickSize() + "px";
-
       overlay.style.backgroundColor = "transparent";
       overlay.preload = "auto";
       overlayLayer.appendChild(overlay);
@@ -415,22 +414,10 @@
         overlay.style.opacity = "1";
       };
 
-      const revealWhenReady = () => {
-        if (typeof overlay.requestVideoFrameCallback === "function") {
-          overlay.requestVideoFrameCallback(() => {
-            revealOverlay();
-          });
-        } else {
-          requestAnimationFrame(() => {
-            revealOverlay();
-          });
-        }
-      };
-
-      overlay.addEventListener("playing", revealWhenReady, { once: true });
+      overlay.addEventListener("playing", revealOverlay, { once: true });
 
       overlay.play().catch((error) => {
-        console.log("MOV overlay play failed:", error);
+        console.log("click01.mp4 test overlay failed:", error);
         removeOverlay(overlay);
       });
 
@@ -457,10 +444,7 @@
 
     async function handleKeyboardTrigger() {
       if (state === "idle") {
-        playIdleClickOverlay(cursorX, cursorY);
         playDance();
-      } else {
-        playKeyOverlay();
       }
 
       startBackgroundMusic();
@@ -468,10 +452,8 @@
 
     async function handleMouseClick(x, y) {
       if (state === "idle") {
-        playIdleClickOverlay(x, y);
+        playOverlay(null, x, y);
         playDance();
-      } else {
-        playDanceTriggerOverlay(x, y);
       }
 
       startBackgroundMusic();
