@@ -51,7 +51,21 @@
   <script>
     const gameFrame = document.getElementById("ginger-cat-game");
     const gameSoundToggle = document.querySelector(".game-sound-toggle");
+    const desktopGameSrc = "ginger-cat-dance-web/index.html";
+    const mobileGameSrc = "ginger-cat-dance-web/mobile.html";
     let gameMusicOn = false;
+
+    function shouldUseMobileGame() {
+      return window.matchMedia("(max-width: 700px), (pointer: coarse)").matches;
+    }
+
+    function updateGameFrameSource() {
+      const nextSrc = shouldUseMobileGame() ? mobileGameSrc : desktopGameSrc;
+
+      if (!gameFrame.getAttribute("src").endsWith(nextSrc)) {
+        gameFrame.src = nextSrc;
+      }
+    }
 
     function updateGameSound() {
       gameSoundToggle.textContent = gameMusicOn ? "Music On" : "Music Off";
@@ -76,6 +90,8 @@
     });
 
     gameFrame.addEventListener("load", updateGameSound);
+    window.addEventListener("resize", updateGameFrameSource);
+    updateGameFrameSource();
   </script>
 </body>
 </html>

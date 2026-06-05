@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Install Mobile</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    body {
+      cursor: none;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    #video {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      object-fit: fill;
+      z-index: 1;
+      background: black;
+    }
+
+    #flash {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* moved ABOVE the flash */
+    #overlayLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .clickOverlay {
+      position: fixed;
+      display: none;
+      height: auto;
+      object-fit: contain;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(-50%, -50%);
+      background: transparent;
+      background-color: transparent;
+    }
+
+    #cursor {
+      display: none;
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      left: 50vw;
+      top: 50vh;
+      background-color: hotpink;
+      border-radius: 50%;
+      box-shadow: 0 0 12px hotpink;
+      background-image: url("mouse.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #111;
+      background: #ffd6e8;
+      transition: opacity 180ms ease, visibility 180ms ease;
+    }
+
+    #loadingScreen.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay muted playsinline preload="auto" disablepictureinpicture controlslist="nodownload noplaybackrate noremoteplayback"></video>
+  <audio id="bgmusic" src="music.mp3" loop preload="none"></audio>
+  <div id="flash"></div>
+  <div id="overlayLayer"></div>
+  <div id="cursor"></div>
+  <div id="loadingScreen" role="status" aria-live="polite">loading...</div>
+
+  <script>
+    const video = document.getElementById("video");
+    const bgmusic = document.getElementById("bgmusic");
+    const flash = document.getElementById("flash");
+    const overlayLayer = document.getElementById("overlayLayer");
+    const cursor = document.getElementById("cursor");
+    const loadingScreen = document.getElementById("loadingScreen");
+
+    const idleSrc = "idle.mp4";
+    const dances = [
+      { src: "dance1.mp4", weight: 0.7 },
+      { src: "dance2.mp4", weight: 1 },
+      { src: "dance3.mp4", weight: 1 },
+      { src: "dance4.mp4", weight: 1 }
+    ];
+
+    const idleClickSets = [
+      { mov: "click01.mov", webm: "click01.webm", mp3: "click01.mp3" },
+      { mov: "click02.mov", webm: "click02.webm", mp3: "click02.mp3" },
+      { mov: "click03.mov", webm: "click03.webm", mp3: "click03.mp3" },
+      { mov: "click04.mov", webm: "click04.webm", mp3: "click04.mp3" },
+      { mov: "click09.mov", webm: "click09.webm", mp3: "click09.mp3" },
+      { mov: "click10.mov", webm: "click10.webm", mp3: "click10.mp3" },
+      { mov: "click11.mov", webm: "click11.webm", mp3: "click11.mp3" }
+    ];
+
+    const danceTriggerSets = [
+      { mov: "click05.mov", webm: "click05.webm", mp3: "click05.mp3" },
+      { mov: "click06.mov", webm: "click06.webm", mp3: "click06.mp3" },
+      { mov: "click07.mov", webm: "click07.webm", mp3: "click07.mp3" },
+      { mov: "click08.mov", webm: "click08.webm", mp3: "click08.mp3" }
+    ];
+
+    const normalClickSize = 420;
+    const danceClickSize = 900;
+    const dance4ClickSize = 680;
+    const maxActiveOverlays = 3;
+
+    let state = "idle";
+    let hasStartedAudio = false;
+    let bgMusicStarted = false;
+    let flashTimeout = null;
+    let ignoreClickUntil = 0;
+    let inputLocked = false;
+    let currentDance = null;
+    let cursorX = window.innerWidth / 2;
+    let cursorY = window.innerHeight / 2;
+    let activeOverlays = [];
+    let activeSounds = [];
+    let musicEnabled = false;
+    let interactionCount = 0;
+    let interactionThreshold = pickInteractionThreshold();
+    let hasHiddenLoadingScreen = false;
+
+    video.disablePictureInPicture = true;
+    video.disableRemotePlayback = true;
+
+    function isMobilePlayback() {
+      return true;
+    }
+
+    function shouldPlayClickSounds() {
+      return true;
+    }
+
+    function applySoundState() {
+      bgmusic.muted = !musicEnabled;
+      video.muted = state !== "dance";
+    }
+
+    async function setMusicEnabled(enabled) {
+      musicEnabled = enabled;
+      applySoundState();
+
+      if (isMobilePlayback()) {
+        return;
+      }
+
+      if (musicEnabled) {
+        await startBackgroundMusic();
+      } else {
+        bgmusic.pause();
+      }
+    }
+
+    function hideLoadingScreen() {
+      if (hasHiddenLoadingScreen) {
+        return;
+      }
+
+      hasHiddenLoadingScreen = true;
+      loadingScreen.classList.add("is-hidden");
+    }
+
+    function pickInteractionThreshold() {
+      return Math.floor(Math.random() * 15) + 1;
+    }
+
+    async function maybeTriggerKeyboardAction() {
+      interactionCount += 1;
+
+      if (interactionCount < interactionThreshold) {
+        return;
+      }
+
+      interactionCount = 0;
+      interactionThreshold = pickInteractionThreshold();
+      await handleKeyboardTrigger();
+    }
+
+    function pickRandomDance() {
+      if (isMobilePlayback()) {
+        return Math.random() < 0.5 ? "dance3.mp4" : "dance4.mp4";
+      }
+
+      const totalWeight = dances.reduce((sum, dance) => sum + dance.weight, 0);
+      let roll = Math.random() * totalWeight;
+
+      for (const dance of dances) {
+        roll -= dance.weight;
+        if (roll <= 0) {
+          return dance.src;
+        }
+      }
+
+      return dances[dances.length - 1].src;
+    }
+
+    function pickRandomIdleClickSet() {
+      return idleClickSets[Math.floor(Math.random() * idleClickSets.length)];
+    }
+
+    function pickRandomDanceTriggerSet() {
+      if (currentDance === "dance1.mp4") {
+        return { mov: "click03.mov", webm: "click03.webm", mp3: "click03.mp3" };
+      }
+
+      return danceTriggerSets[Math.floor(Math.random() * danceTriggerSets.length)];
+    }
+
+    async function startBackgroundMusic() {
+      if (isMobilePlayback() || !musicEnabled) {
+        return;
+      }
+
+      if (bgMusicStarted) {
+        if (musicEnabled && bgmusic.paused) {
+          try {
+            await bgmusic.play();
+          } catch (error) {
+            console.log("Music resume failed:", error);
+          }
+        }
+
+        return;
+      }
+
+      bgMusicStarted = true;
+      bgmusic.muted = !musicEnabled;
+      bgmusic.volume = 0.6;
+      bgmusic.playbackRate = 1.0;
+      bgmusic.currentTime = 0;
+
+      try {
+        await bgmusic.play();
+      } catch (error) {
+        console.log("Music play failed:", error);
+        bgMusicStarted = false;
+      }
+    }
+
+    function setNormalMusicEffect() {
+      bgmusic.volume = 0.6;
+      bgmusic.playbackRate = 1.0;
+    }
+
+    function setDance1MusicEffect() {
+      bgmusic.volume = 0.35;
+      bgmusic.playbackRate = 0.5;
+    }
+
+    function updateMusicEffectForCurrentState() {
+      if (!bgMusicStarted) return;
+
+      if (currentDance === "dance1.mp4") {
+        setDance1MusicEffect();
+      } else {
+        setNormalMusicEffect();
+      }
+    }
+
+    function getCurrentClickSize() {
+      const viewportScale = Math.min(window.innerWidth / 720, window.innerHeight / 900, 1);
+      let size = normalClickSize;
+
+      if (state === "dance" && currentDance === "dance4.mp4") {
+        size = dance4ClickSize;
+      } else if (state === "dance") {
+        size = danceClickSize;
+      }
+
+      return Math.max(180, Math.round(size * viewportScale));
+    }
+
+    function playIdle() {
+      state = "idle";
+      currentDance = null;
+      inputLocked = false;
+      updateMusicEffectForCurrentState();
+
+      video.src = idleSrc;
+      video.loop = true;
+      video.muted = true;
+      video.volume = 1.0;
+      video.currentTime = 0;
+
+      video.play().catch((error) => {
+        console.log("Idle play failed:", error);
+      });
+    }
+
+    function playDance() {
+      if (inputLocked) return;
+
+      state = "dance";
+      inputLocked = true;
+      hasStartedAudio = true;
+
+      const chosenDance = pickRandomDance();
+      currentDance = chosenDance;
+      updateMusicEffectForCurrentState();
+
+      video.src = chosenDance;
+      video.loop = false;
+      video.muted = false;
+      video.volume = 1.0;
+      video.currentTime = 0;
+
+      video.play().catch((error) => {
+        console.log("Dance play failed:", error);
+      });
+
+      startBackgroundMusic();
+    }
+
+    function flashColor(color, durationMs) {
+      clearTimeout(flashTimeout);
+
+      flash.style.background = color;
+      flash.style.opacity = "0.5";
+
+      flashTimeout = setTimeout(() => {
+        flash.style.opacity = "0";
+      }, durationMs);
+    }
+
+    function removeOverlay(overlay) {
+      activeOverlays = activeOverlays.filter((activeOverlay) => activeOverlay !== overlay);
+      overlay.pause();
+      overlay.removeAttribute("src");
+      overlay.load();
+      overlay.remove();
+    }
+
+    function trimActiveOverlays() {
+      while (activeOverlays.length >= maxActiveOverlays) {
+        removeOverlay(activeOverlays[0]);
+      }
+    }
+
+    function addOverlaySource(overlay, src, type) {
+      const source = document.createElement("source");
+      source.src = src + "?t=" + Date.now();
+      source.type = type;
+      overlay.appendChild(source);
+    }
+
+    function playOverlay(set, x, y) {
+      hasStartedAudio = true;
+
+      trimActiveOverlays();
+
+      const overlay = document.createElement("video");
+      overlay.className = "clickOverlay";
+      overlay.playsInline = true;
+      overlay.disablePictureInPicture = true;
+      overlay.disableRemotePlayback = true;
+      overlay.controlsList = "nodownload noplaybackrate noremoteplayback";
+      overlay.muted = false;
+      overlay.volume = 1.0;
+      addOverlaySource(overlay, set.mov, "video/quicktime");
+      addOverlaySource(overlay, set.webm, "video/webm");
+      overlay.currentTime = 0;
+      overlay.loop = false;
+      overlay.playbackRate = 1.25;
+      overlay.style.left = x + "px";
+      overlay.style.top = y + "px";
+      overlay.style.width = getCurrentClickSize() + "px";
+
+      overlay.style.backgroundColor = "transparent";
+      overlay.preload = "auto";
+      overlayLayer.appendChild(overlay);
+      activeOverlays.push(overlay);
+
+      if (shouldPlayClickSounds()) {
+        const sound = new Audio(set.mp3);
+        sound.muted = false;
+        sound.playbackRate = 1.0;
+        activeSounds.push(sound);
+
+        const removeSound = () => {
+          activeSounds = activeSounds.filter((activeSound) => activeSound !== sound);
+        };
+
+        sound.addEventListener("ended", removeSound, { once: true });
+        sound.addEventListener("error", removeSound, { once: true });
+        sound.play().catch((error) => {
+          console.log("Click sound failed:", error);
+          removeSound();
+        });
+      }
+
+      const revealOverlay = () => {
+        overlay.style.visibility = "visible";
+        overlay.style.opacity = "1";
+      };
+
+      const revealWhenReady = () => {
+        if (typeof overlay.requestVideoFrameCallback === "function") {
+          overlay.requestVideoFrameCallback(() => {
+            revealOverlay();
+          });
+        } else {
+          requestAnimationFrame(() => {
+            revealOverlay();
+          });
+        }
+      };
+
+      overlay.addEventListener("playing", revealWhenReady, { once: true });
+
+      overlay.play().catch((error) => {
+        console.log("Overlay play failed:", error);
+        removeOverlay(overlay);
+      });
+
+      overlay.addEventListener("ended", () => {
+        removeOverlay(overlay);
+      });
+
+      overlay.addEventListener("error", () => {
+        removeOverlay(overlay);
+      });
+    }
+
+    function playIdleClickOverlay(x, y) {
+      playOverlay(pickRandomIdleClickSet(), x, y);
+    }
+
+    function playDanceTriggerOverlay(x, y) {
+      playOverlay(pickRandomDanceTriggerSet(), x, y);
+    }
+
+    function playKeyOverlay() {
+      playDanceTriggerOverlay(cursorX, cursorY);
+    }
+
+    async function handleKeyboardTrigger() {
+      if (state === "idle") {
+        playDance();
+      } else {
+        playKeyOverlay();
+        if (currentDance === "dance1.mp4") {
+          flashColor("red", 200);
+        }
+
+        startBackgroundMusic();
+      }
+    }
+
+    async function handleMouseClick(x, y) {
+      if (state === "idle") {
+        playIdleClickOverlay(x, y);
+      } else {
+        playDanceTriggerOverlay(x, y);
+        if (currentDance === "dance1.mp4") {
+          flashColor("red", 200);
+        }
+      }
+
+      startBackgroundMusic();
+    }
+
+    async function handleTouch(x, y) {
+      cursorX = x;
+      cursorY = y;
+
+      if (isMobilePlayback()) {
+        await handleMouseClick(x, y);
+        await maybeTriggerKeyboardAction();
+        return;
+      }
+
+      await handleMouseClick(x, y);
+      await maybeTriggerKeyboardAction();
+    }
+
+    video.addEventListener("ended", () => {
+      if (state === "dance") {
+        playIdle();
+      }
+    });
+
+    video.addEventListener("canplay", hideLoadingScreen, { once: true });
+    video.addEventListener("playing", hideLoadingScreen, { once: true });
+    window.setTimeout(hideLoadingScreen, 6000);
+
+    document.addEventListener("click", async (event) => {
+      if (Date.now() < ignoreClickUntil) return;
+      await handleMouseClick(event.clientX, event.clientY);
+      await maybeTriggerKeyboardAction();
+    });
+
+    document.addEventListener("contextmenu", async (event) => {
+      event.preventDefault();
+      if (Date.now() < ignoreClickUntil) return;
+      await handleMouseClick(event.clientX, event.clientY);
+      await maybeTriggerKeyboardAction();
+    });
+
+    document.addEventListener("keydown", async () => {
+      await handleMouseClick(cursorX, cursorY);
+      await maybeTriggerKeyboardAction();
+    });
+
+    document.addEventListener("touchstart", async (event) => {
+      event.preventDefault();
+      ignoreClickUntil = Date.now() + 700;
+      cursor.style.display = "none";
+      const touch = event.touches[0];
+
+      if (touch) {
+        await handleTouch(touch.clientX, touch.clientY);
+      }
+    }, { passive: false });
+
+    document.addEventListener("mousemove", (event) => {
+      cursorX = event.clientX;
+      cursorY = event.clientY;
+      cursor.style.display = "block";
+      cursor.style.left = cursorX + "px";
+      cursor.style.top = cursorY + "px";
+    });
+
+    window.addEventListener("message", (event) => {
+      if (!event.data || event.data.type !== "setMusic") {
+        return;
+      }
+
+      setMusicEnabled(Boolean(event.data.enabled));
+    });
+
+    window.setGameMusicEnabled = setMusicEnabled;
+
+    playIdle();
+  </script>
+</body>
+</html>

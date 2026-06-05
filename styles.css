@@ -239,7 +239,7 @@ a:hover {
   font: inherit;
   font-size: 0.72rem;
   font-weight: bold;
-  color: #111;
+  color: #ff4fa3;
   background: rgba(255, 255, 255, 0.82);
   cursor: var(--cursor-pointer);
 }
