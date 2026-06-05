@@ -25,9 +25,10 @@
 
     #video {
       position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
+      left: -2px;
+      top: -2px;
+      width: calc(100vw + 4px);
+      height: calc(100vh + 4px);
       display: block;
       object-fit: fill;
       z-index: 1;
@@ -52,7 +53,7 @@
 
     .clickOverlay {
       position: fixed;
-      display: none;
+      display: block;
       height: auto;
       object-fit: contain;
       pointer-events: none;
@@ -385,7 +386,61 @@
     }
 
     function playOverlay(set, x, y) {
-      return;
+      hasStartedAudio = true;
+
+      trimActiveOverlays();
+
+      const overlay = document.createElement("video");
+      overlay.className = "clickOverlay";
+      overlay.playsInline = true;
+      overlay.disablePictureInPicture = true;
+      overlay.disableRemotePlayback = true;
+      overlay.controlsList = "nodownload noplaybackrate noremoteplayback";
+      overlay.muted = true;
+      overlay.src = set.mov + "?t=" + Date.now();
+      overlay.currentTime = 0;
+      overlay.loop = false;
+      overlay.playbackRate = 1.25;
+      overlay.style.left = x + "px";
+      overlay.style.top = y + "px";
+      overlay.style.width = getCurrentClickSize() + "px";
+
+      overlay.style.backgroundColor = "transparent";
+      overlay.preload = "auto";
+      overlayLayer.appendChild(overlay);
+      activeOverlays.push(overlay);
+
+      const revealOverlay = () => {
+        overlay.style.visibility = "visible";
+        overlay.style.opacity = "1";
+      };
+
+      const revealWhenReady = () => {
+        if (typeof overlay.requestVideoFrameCallback === "function") {
+          overlay.requestVideoFrameCallback(() => {
+            revealOverlay();
+          });
+        } else {
+          requestAnimationFrame(() => {
+            revealOverlay();
+          });
+        }
+      };
+
+      overlay.addEventListener("playing", revealWhenReady, { once: true });
+
+      overlay.play().catch((error) => {
+        console.log("MOV overlay play failed:", error);
+        removeOverlay(overlay);
+      });
+
+      overlay.addEventListener("ended", () => {
+        removeOverlay(overlay);
+      });
+
+      overlay.addEventListener("error", () => {
+        removeOverlay(overlay);
+      });
     }
 
     function playIdleClickOverlay(x, y) {
@@ -402,7 +457,10 @@
 
     async function handleKeyboardTrigger() {
       if (state === "idle") {
+        playIdleClickOverlay(cursorX, cursorY);
         playDance();
+      } else {
+        playKeyOverlay();
       }
 
       startBackgroundMusic();
@@ -410,7 +468,10 @@
 
     async function handleMouseClick(x, y) {
       if (state === "idle") {
+        playIdleClickOverlay(x, y);
         playDance();
+      } else {
+        playDanceTriggerOverlay(x, y);
       }
 
       startBackgroundMusic();

@@ -25,9 +25,10 @@
 
     #video {
       position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
+      left: -2px;
+      top: -2px;
+      width: calc(100vw + 4px);
+      height: calc(100vh + 4px);
       display: block;
       object-fit: fill;
       z-index: 1;
@@ -65,8 +66,8 @@
 
     #cursor {
       position: fixed;
-      width: 60px;
-      height: 60px;
+      width: 42px;
+      height: 42px;
       pointer-events: none;
       transform: translate(-50%, -50%);
       z-index: 20;

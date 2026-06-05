@@ -225,13 +225,14 @@ a:hover {
   display: grid;
   place-items: center;
   position: relative;
-  width: min(500px, calc(100vw - var(--page-padding) * 2));
-  height: min(610px, 68vh);
+  width: min(460px, calc(100vw - var(--page-padding) * 2));
+  height: min(560px, 62vh);
+  overflow: hidden;
   margin: 0;
 }
 
 .home-page {
-  --home-game-width: 500px;
+  --home-game-width: 460px;
   --home-game-left: calc(var(--page-padding) + var(--feed-width) + var(--feed-gap));
   --home-on-now-width: 320px;
   --home-game-on-now-gap: 32px;
@@ -249,10 +250,11 @@ a:hover {
 
 .homepage-game iframe {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
   border: 0;
   background: #000;
+  transform: translate(-2px, -2px);
 }
 
 .game-sound-toggle {
