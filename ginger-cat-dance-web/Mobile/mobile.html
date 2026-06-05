@@ -25,10 +25,10 @@
 
     #video {
       position: fixed;
-      left: -2px;
-      top: -2px;
-      width: calc(100vw + 4px);
-      height: calc(100vh + 4px);
+      left: -4px;
+      top: -4px;
+      width: calc(100vw + 8px);
+      height: calc(100vh + 8px);
       display: block;
       object-fit: fill;
       z-index: 1;
@@ -106,7 +106,7 @@
 </head>
 <body>
   <video id="video" autoplay muted playsinline preload="auto" disablepictureinpicture controlslist="nodownload noplaybackrate noremoteplayback"></video>
-  <audio id="bgmusic" src="music.mp3" loop preload="none"></audio>
+  <audio id="bgmusic" src="../music.mp3" loop preload="none"></audio>
   <div id="flash"></div>
   <div id="overlayLayer"></div>
   <div id="cursor"></div>
@@ -120,7 +120,20 @@
     const cursor = document.getElementById("cursor");
     const loadingScreen = document.getElementById("loadingScreen");
 
-    const idleSrc = "idle.mp4";
+    const idleSrc = "tabby.mp4";
+    const clickSounds = [
+      "../click01.mp3",
+      "../click02.mp3",
+      "../click03.mp3",
+      "../click04.mp3",
+      "../click05.mp3",
+      "../click06.mp3",
+      "../click07.mp3",
+      "../click08.mp3",
+      "../click09.mp3",
+      "../click10.mp3",
+      "../click11.mp3"
+    ];
     const dances = [
       { src: "dance1.mp4", weight: 0.7 },
       { src: "dance2.mp4", weight: 1 },
@@ -179,7 +192,7 @@
 
     function applySoundState() {
       bgmusic.muted = !musicEnabled;
-      video.muted = state !== "dance";
+      video.muted = true;
     }
 
     async function setMusicEnabled(enabled) {
@@ -329,6 +342,26 @@
       });
     }
 
+    function playRandomClickSound() {
+      const src = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+      const sound = new Audio(src);
+      sound.muted = false;
+      sound.volume = 1.0;
+      sound.playbackRate = 1.0;
+      activeSounds.push(sound);
+
+      const removeSound = () => {
+        activeSounds = activeSounds.filter((activeSound) => activeSound !== sound);
+      };
+
+      sound.addEventListener("ended", removeSound, { once: true });
+      sound.addEventListener("error", removeSound, { once: true });
+      sound.play().catch((error) => {
+        console.log("Mobile click sound failed:", error);
+        removeSound();
+      });
+    }
+
     function playDance() {
       if (inputLocked) return;
 
@@ -443,19 +476,14 @@
     }
 
     async function handleKeyboardTrigger() {
-      if (state === "idle") {
-        playDance();
-      }
-
+      playRandomClickSound();
+      flashColor("red", 140);
       startBackgroundMusic();
     }
 
     async function handleMouseClick(x, y) {
-      if (state === "idle") {
-        playOverlay(null, x, y);
-        playDance();
-      }
-
+      playRandomClickSound();
+      flashColor("red", 140);
       startBackgroundMusic();
     }
 
@@ -485,19 +513,16 @@
     document.addEventListener("click", async (event) => {
       if (Date.now() < ignoreClickUntil) return;
       await handleMouseClick(event.clientX, event.clientY);
-      await maybeTriggerKeyboardAction();
     });
 
     document.addEventListener("contextmenu", async (event) => {
       event.preventDefault();
       if (Date.now() < ignoreClickUntil) return;
       await handleMouseClick(event.clientX, event.clientY);
-      await maybeTriggerKeyboardAction();
     });
 
     document.addEventListener("keydown", async () => {
       await handleMouseClick(cursorX, cursorY);
-      await maybeTriggerKeyboardAction();
     });
 
     document.addEventListener("touchstart", async (event) => {

@@ -701,17 +701,24 @@ a:hover {
   }
 
   .homepage-game {
-    width: 100%;
-    max-height: 58vh;
+    width: min(52vw, 250px);
+    height: min(42vh, 390px);
     margin-bottom: 0;
+    margin-top: 10vh;
   }
 
   .game-sound-toggle {
     display: block;
+    top: 8px;
+    right: 8px;
+    bottom: auto;
+    padding: 2px 5px;
+    font-size: 0.58rem;
   }
 
   .home-page .homepage-game {
-    margin-left: 0;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .project-page .site-header,
