@@ -120,7 +120,7 @@
     const cursor = document.getElementById("cursor");
     const loadingScreen = document.getElementById("loadingScreen");
 
-    const idleSrc = "tabby.mp4";
+    const idleSrc = "idle.mp4";
     const clickSounds = [
       "../click01.mp3",
       "../click02.mp3",
@@ -216,7 +216,7 @@
     }
 
     function pickInteractionThreshold() {
-      return Math.floor(Math.random() * 15) + 1;
+      return Math.floor(Math.random() * 16) + 5;
     }
 
     async function maybeTriggerKeyboardAction() {
@@ -476,14 +476,17 @@
     }
 
     async function handleKeyboardTrigger() {
-      playRandomClickSound();
-      flashColor("red", 140);
+      if (state === "idle") {
+        playDance();
+      }
+
       startBackgroundMusic();
     }
 
     async function handleMouseClick(x, y) {
       playRandomClickSound();
       flashColor("red", 140);
+      await maybeTriggerKeyboardAction();
       startBackgroundMusic();
     }
 
