@@ -158,6 +158,7 @@
     let cursorX = window.innerWidth / 2;
     let cursorY = window.innerHeight / 2;
     let activeOverlays = [];
+    let activeSounds = [];
     let musicEnabled = false;
     let interactionCount = 0;
     let interactionThreshold = pickInteractionThreshold();
@@ -171,7 +172,7 @@
     }
 
     function shouldPlayClickSounds() {
-      return !isMobilePlayback();
+      return true;
     }
 
     function applySoundState() {
@@ -411,8 +412,17 @@
         const sound = new Audio(set.mp3);
         sound.muted = false;
         sound.playbackRate = 1.0;
+        activeSounds.push(sound);
+
+        const removeSound = () => {
+          activeSounds = activeSounds.filter((activeSound) => activeSound !== sound);
+        };
+
+        sound.addEventListener("ended", removeSound, { once: true });
+        sound.addEventListener("error", removeSound, { once: true });
         sound.play().catch((error) => {
           console.log("Click sound failed:", error);
+          removeSound();
         });
       }
 
