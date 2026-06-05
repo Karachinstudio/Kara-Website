@@ -1,0 +1,377 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mapping The Wasteland | Kara Chin</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+
+<body class="project-page mapping-page">
+  <header class="site-header">
+    <a class="site-title" href="../index.html">Kara Chin</a>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="is-current" href="../work.html">Work</a>
+      <a href="../cv.html">CV</a>
+    </nav>
+  </header>
+
+  <main class="home-layout">
+    <aside class="image-feed" aria-label="Selected work image feed"></aside>
+
+    <div class="gallery-page">
+      <section class="single-gallery" aria-label="Mapping The Wasteland image gallery">
+        <figure class="single-gallery-figure">
+          <img id="gallery-image" alt="" />
+        </figure>
+
+        <aside class="gallery-side">
+          <header class="gallery-intro">
+            <h1>Mapping The Wasteland</h1>
+            <p>Liverpool Biennial at FACT, 2025. Solo.</p>
+          </header>
+
+          <div class="gallery-caption">
+            <strong id="gallery-title"></strong>
+            <span id="gallery-info"></span>
+          </div>
+
+          <div class="gallery-controls">
+            <button class="gallery-button gallery-button-prev" type="button" aria-label="Previous image">&larr;</button>
+            <span id="gallery-count" class="gallery-count"></span>
+            <button class="gallery-button gallery-button-next" type="button" aria-label="Next image">&rarr;</button>
+          </div>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <div class="fullscreen-gallery" hidden>
+    <button class="fullscreen-close" type="button" aria-label="Close fullscreen gallery">Close</button>
+    <button class="fullscreen-button fullscreen-prev" type="button" aria-label="Previous image">&larr;</button>
+    <img id="fullscreen-image" alt="" />
+    <button class="fullscreen-button fullscreen-next" type="button" aria-label="Next image">&rarr;</button>
+  </div>
+
+  <footer class="site-footer">
+    <p><a href="#" data-copy-email="studio@karachin.co.uk">studio@karachin.co.uk</a></p>
+    <p><a href="https://www.instagram.com/karachin/" target="_blank" rel="noreferrer">@karachin</a></p>
+  </footer>
+
+  <script src="../copy-email.js"></script>
+  <script src="../work-list.js"></script>
+  <script src="../work-page-galleries/Mapping%20The%20Wasteland.%20Liverpool%20Biennial%20at%20FACT%202025.%20Solo/Mapping%20The%20Wasteland%20IMAGE%20LIST.js"></script>
+  <script>
+    const imageFeed = document.querySelector(".image-feed");
+    const galleryImage = document.getElementById("gallery-image");
+    const galleryFigure = document.querySelector(".single-gallery-figure");
+    const galleryTitle = document.getElementById("gallery-title");
+    const galleryInfo = document.getElementById("gallery-info");
+    const galleryCount = document.getElementById("gallery-count");
+    const previousButton = document.querySelector(".gallery-button-prev");
+    const nextButton = document.querySelector(".gallery-button-next");
+    const fullscreenGallery = document.querySelector(".fullscreen-gallery");
+    const fullscreenImage = document.getElementById("fullscreen-image");
+    const fullscreenClose = document.querySelector(".fullscreen-close");
+    const fullscreenPrevious = document.querySelector(".fullscreen-prev");
+    const fullscreenNext = document.querySelector(".fullscreen-next");
+    const workImageFolder = `../${window.WORK_IMAGE_FOLDER || "images/"}`;
+    const galleryFolder = "../work-page-galleries/Mapping The Wasteland. Liverpool Biennial at FACT 2025. Solo/";
+    const currentWorkHref = "work-pages/mapping-the-wasteland.html";
+    const works = window.WORK_LIST || [];
+    const images = window.IMAGE_LIST || [];
+    let currentImageIndex = 0;
+    let galleryClickTimer;
+    let fullscreenClickTimer;
+    let fullscreenPinchStartDistance = 0;
+    let fullscreenPinchScale = 1;
+    let fullscreenPinchBaseScale = 1;
+    let fullscreenPinchActive = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let ignoreNextGalleryClick = false;
+    let ignoreNextFullscreenClick = false;
+
+    function titleFromFile(file) {
+      const filename = file.split("/").pop().replace(/\.[^.]+$/, "");
+      const cleaned = filename
+        .replace(/^\d+\s*[-_. ]\s*/, "")
+        .replace(/[-_]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (cleaned === cleaned.toLowerCase() || cleaned === cleaned.toUpperCase()) {
+        return cleaned.replace(/\b\w/g, (letter) => letter.toUpperCase());
+      }
+
+      return cleaned;
+    }
+
+    function imagePath(file) {
+      if (/^(https?:)?\/\//.test(file)) {
+        return file;
+      }
+
+      if (file.includes("/")) {
+        return encodeURI(`../${file}`);
+      }
+
+      return encodeURI(`${workImageFolder}${file}`);
+    }
+
+    function galleryImagePath(file) {
+      return `${galleryFolder}${file}`;
+    }
+
+    function hrefPath(href) {
+      if (!href) {
+        return "../work.html";
+      }
+
+      if (/^(https?:)?\/\//.test(href) || href.startsWith("../")) {
+        return href;
+      }
+
+      return `../${href}`;
+    }
+
+    works.forEach((item) => {
+      const file = typeof item === "string" ? item : item.file;
+      const titleText = typeof item === "string" ? titleFromFile(file) : item.title || titleFromFile(file);
+      const rawHref = typeof item === "string" ? "" : item.href;
+      const altText = typeof item === "string" ? titleText : item.alt || titleText;
+      const itemHref = hrefPath(rawHref);
+      const article = document.createElement("article");
+      const link = document.createElement("a");
+      const image = document.createElement("img");
+      const title = document.createElement("span");
+
+      article.className = "feed-item";
+      link.href = itemHref;
+      link.classList.toggle("is-active", rawHref === currentWorkHref);
+      image.src = imagePath(file);
+      image.alt = altText;
+      title.textContent = titleText;
+
+      link.append(image, title);
+      article.append(link);
+      imageFeed.append(article);
+    });
+
+    function showGalleryImage(index) {
+      if (!images.length) {
+        return;
+      }
+
+      currentImageIndex = (index + images.length) % images.length;
+      const item = images[currentImageIndex];
+      fullscreenGallery.classList.remove("is-zoomed");
+      resetFullscreenPinchZoom();
+
+      galleryImage.src = galleryImagePath(item.file);
+      galleryImage.alt = item.alt || item.title || "";
+      fullscreenImage.src = galleryImagePath(item.file);
+      fullscreenImage.alt = item.alt || item.title || "";
+      galleryTitle.textContent = item.title;
+      galleryTitle.hidden = !item.title;
+      galleryInfo.textContent = item.info || "";
+      galleryCount.textContent = `${currentImageIndex + 1} / ${images.length}`;
+    }
+
+    function openFullscreen() {
+      fullscreenGallery.hidden = false;
+      document.body.classList.add("has-fullscreen-gallery");
+    }
+
+    function closeFullscreen() {
+      fullscreenGallery.hidden = true;
+      fullscreenGallery.classList.remove("is-zoomed");
+      resetFullscreenPinchZoom();
+      resetFullscreenPinchZoom();
+      document.body.classList.remove("has-fullscreen-gallery");
+    }
+
+    function toggleFullscreenZoom() {
+      if (ignoreNextFullscreenClick) {
+        ignoreNextFullscreenClick = false;
+        return;
+      }
+
+      fullscreenGallery.classList.toggle("is-zoomed");
+    }
+
+    function handleFullscreenImageClick() {
+      if (ignoreNextFullscreenClick) {
+        ignoreNextFullscreenClick = false;
+        return;
+      }
+
+      clearTimeout(fullscreenClickTimer);
+      fullscreenClickTimer = window.setTimeout(() => showGalleryImage(currentImageIndex + 1), 220);
+    }
+
+    function handleFullscreenImageDoubleClick() {
+      clearTimeout(fullscreenClickTimer);
+      toggleFullscreenZoom();
+    }
+
+
+    function resetFullscreenPinchZoom() {
+      fullscreenPinchStartDistance = 0;
+      fullscreenPinchScale = 1;
+      fullscreenPinchBaseScale = 1;
+      fullscreenImage.style.transform = "";
+    }
+
+    function getTouchDistance(touches) {
+      const deltaX = touches[0].clientX - touches[1].clientX;
+      const deltaY = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(deltaX, deltaY);
+    }
+
+    function handleFullscreenPinchStart(event) {
+      if (!window.matchMedia("(max-width: 700px)").matches || event.touches.length < 2 || fullscreenImage.hidden) {
+        return;
+      }
+
+      clearTimeout(fullscreenClickTimer);
+      event.preventDefault();
+      fullscreenPinchActive = true;
+      ignoreNextFullscreenClick = true;
+      fullscreenPinchStartDistance = getTouchDistance(event.touches);
+      fullscreenPinchBaseScale = fullscreenPinchScale;
+    }
+
+    function handleFullscreenPinchMove(event) {
+      if (!fullscreenPinchActive || event.touches.length < 2 || !fullscreenPinchStartDistance) {
+        return;
+      }
+
+      event.preventDefault();
+      const nextScale = fullscreenPinchBaseScale * (getTouchDistance(event.touches) / fullscreenPinchStartDistance);
+      fullscreenPinchScale = Math.min(Math.max(nextScale, 1), 3);
+      fullscreenImage.style.transform = fullscreenPinchScale === 1 ? "" : `scale(${fullscreenPinchScale})`;
+    }
+
+    function handleFullscreenPinchEnd() {
+      if (!fullscreenPinchActive) {
+        return;
+      }
+
+      fullscreenPinchStartDistance = 0;
+      window.setTimeout(() => {
+        fullscreenPinchActive = false;
+        ignoreNextFullscreenClick = false;
+      }, 260);
+    }
+    function handleGalleryImageClick() {
+      if (ignoreNextGalleryClick) {
+        ignoreNextGalleryClick = false;
+        return;
+      }
+
+      if (window.matchMedia("(max-width: 700px)").matches) {
+        clearTimeout(galleryClickTimer);
+        openFullscreen();
+        return;
+      }
+
+      clearTimeout(galleryClickTimer);
+      galleryClickTimer = window.setTimeout(() => showGalleryImage(currentImageIndex + 1), 220);
+    }
+
+    function handleGalleryImageDoubleClick() {
+      clearTimeout(galleryClickTimer);
+      openFullscreen();
+    }
+
+
+    function handleGallerySwipeStart(event) {
+      if (!window.matchMedia("(max-width: 700px)").matches || event.touches.length !== 1) {
+        return;
+      }
+
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+    }
+
+    function handleGallerySwipeEnd(event) {
+      if (!window.matchMedia("(max-width: 700px)").matches || fullscreenPinchActive || !event.changedTouches.length) {
+        return;
+      }
+
+      const touchEndX = event.changedTouches[0].clientX;
+      const touchEndY = event.changedTouches[0].clientY;
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) {
+        return;
+      }
+
+      clearTimeout(galleryClickTimer);
+      ignoreNextGalleryClick = true;
+      ignoreNextFullscreenClick = true;
+      window.setTimeout(() => {
+        ignoreNextGalleryClick = false;
+        ignoreNextFullscreenClick = false;
+      }, 260);
+
+      showGalleryImage(deltaX < 0 ? currentImageIndex + 1 : currentImageIndex - 1);
+    }
+    previousButton.addEventListener("click", () => showGalleryImage(currentImageIndex - 1));
+    nextButton.addEventListener("click", () => showGalleryImage(currentImageIndex + 1));
+    galleryFigure.addEventListener("touchstart", handleGallerySwipeStart, { passive: true });
+    galleryFigure.addEventListener("touchend", handleGallerySwipeEnd, { passive: true });
+    fullscreenGallery.addEventListener("touchstart", handleGallerySwipeStart, { passive: true });
+    fullscreenGallery.addEventListener("touchend", handleGallerySwipeEnd, { passive: true });
+    galleryImage.addEventListener("click", handleGalleryImageClick);
+    galleryImage.addEventListener("dblclick", handleGalleryImageDoubleClick);
+    fullscreenClose.addEventListener("click", closeFullscreen);
+    fullscreenGallery.addEventListener("click", (event) => {
+      if (ignoreNextFullscreenClick) {
+        ignoreNextFullscreenClick = false;
+        return;
+      }
+
+      if (event.target === fullscreenGallery) {
+        closeFullscreen();
+      }
+    });
+    fullscreenPrevious.addEventListener("click", () => showGalleryImage(currentImageIndex - 1));
+    fullscreenNext.addEventListener("click", () => showGalleryImage(currentImageIndex + 1));
+    fullscreenImage.addEventListener("click", handleFullscreenImageClick);
+    fullscreenImage.addEventListener("dblclick", handleFullscreenImageDoubleClick);
+    fullscreenImage.addEventListener("touchstart", handleFullscreenPinchStart, { passive: false });
+    fullscreenImage.addEventListener("touchmove", handleFullscreenPinchMove, { passive: false });
+    fullscreenImage.addEventListener("touchend", handleFullscreenPinchEnd, { passive: true });
+    fullscreenImage.addEventListener("touchcancel", handleFullscreenPinchEnd, { passive: true });
+
+    document.addEventListener("keydown", (event) => {
+      if (fullscreenGallery.hidden) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeFullscreen();
+      }
+
+      if (event.key === "ArrowLeft") {
+        showGalleryImage(currentImageIndex - 1);
+      }
+
+      if (event.key === "ArrowRight") {
+        showGalleryImage(currentImageIndex + 1);
+      }
+    });
+
+    showGalleryImage(0);
+  </script>
+  <script src="../feed-scroll-memory.js"></script>
+</body>
+</html>
+
+
+
+

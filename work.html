@@ -1,0 +1,99 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kara Chin | Artist</title>
+  <meta name="description" content="Kara Chin is an artist working across ceramics, installation, animation and video." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="site-title" href="index.html">Kara Chin</a>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="is-current" href="work.html">Work</a>
+      <a href="cv.html">CV</a>
+    </nav>
+  </header>
+
+  <main class="home-layout">
+    <aside class="image-feed" aria-label="Selected work image feed"></aside>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="#" data-copy-email="studio@karachin.co.uk">studio@karachin.co.uk</a></p>
+    <p><a href="https://www.instagram.com/karachin/" target="_blank" rel="noreferrer">@karachin</a></p>
+  </footer>
+
+  <script src="copy-email.js"></script>
+  <script src="work-list.js"></script>
+  <script>
+    const imageFeed = document.querySelector(".image-feed");
+    const imageFolder = window.WORK_IMAGE_FOLDER || "images/";
+    const workList = window.WORK_LIST || [];
+
+    function titleFromFile(file) {
+      const filename = file.split("/").pop().replace(/\.[^.]+$/, "");
+      const cleaned = filename
+        .replace(/^\d+\s*[-_. ]\s*/, "")
+        .replace(/[-_]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (cleaned === cleaned.toLowerCase() || cleaned === cleaned.toUpperCase()) {
+        return cleaned.replace(/\b\w/g, (letter) => letter.toUpperCase());
+      }
+
+      return cleaned;
+    }
+
+    function imagePath(file) {
+      if (/^(https?:)?\/\//.test(file) || file.includes("/")) {
+        return file;
+      }
+
+      return `${imageFolder}${file}`;
+    }
+
+    function normaliseWork(item) {
+      const file = typeof item === "string" ? item : item.file;
+
+      return {
+        file,
+        src: imagePath(file),
+        title: typeof item === "string" ? titleFromFile(file) : item.title || titleFromFile(file),
+        href: typeof item === "string" ? "" : item.href || "",
+        alt: typeof item === "string" ? "" : item.alt || ""
+      };
+    }
+
+    const works = workList.map(normaliseWork);
+
+    works.forEach((work) => {
+      const item = document.createElement("article");
+      const link = document.createElement("a");
+      const image = document.createElement("img");
+      const title = document.createElement("span");
+
+      item.className = "feed-item";
+      link.href = work.href || "#";
+      image.src = work.src;
+      image.alt = work.alt || work.title;
+      title.textContent = work.title;
+
+      link.append(image, title);
+      item.append(link);
+      imageFeed.append(item);
+
+      link.addEventListener("click", (event) => {
+        if (!work.href) {
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+  <script src="feed-scroll-memory.js"></script>
+</body>
+</html>

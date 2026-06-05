@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kara Chin | Artist</title>
+  <meta name="description" content="Kara Chin is an artist working across ceramics, installation, animation and video." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="home-page">
+  <header class="site-header">
+    <a class="site-title" href="index.html">Kara Chin</a>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="work.html?feed=top">Work</a>
+      <a href="cv.html">CV</a>
+    </nav>
+  </header>
+
+  <main class="home-layout">
+    <section class="homepage-game" aria-label="Ginger Cat Dance game">
+      <button class="game-sound-toggle" type="button" aria-pressed="false">Music Off</button>
+      <iframe
+        id="ginger-cat-game"
+        src="ginger-cat-dance-web/index.html"
+        title="Ginger Cat Dance"
+        loading="eager"
+        allow="autoplay"
+      ></iframe>
+    </section>
+    <section class="on-now">
+      <h2>On Now</h2>
+
+      <p>
+        <a href="https://www.ikon-gallery.org/" target="_blank" rel="noreferrer">
+          Break the Mould<br />
+          Ikon Gallery, Birmingham UK
+        </a><br />
+        25th March - 6th September 2026
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="#" data-copy-email="studio@karachin.co.uk">studio@karachin.co.uk</a></p>
+    <p><a href="https://www.instagram.com/karachin/" target="_blank" rel="noreferrer">@karachin</a></p>
+  </footer>
+
+  <script src="copy-email.js"></script>
+  <script>
+    const gameFrame = document.getElementById("ginger-cat-game");
+    const gameSoundToggle = document.querySelector(".game-sound-toggle");
+    let gameMusicOn = false;
+
+    function updateGameSound() {
+      gameSoundToggle.textContent = gameMusicOn ? "Music On" : "Music Off";
+      gameSoundToggle.setAttribute("aria-pressed", String(gameMusicOn));
+
+      if (gameFrame.contentWindow) {
+        try {
+          if (typeof gameFrame.contentWindow.setGameMusicEnabled === "function") {
+            gameFrame.contentWindow.setGameMusicEnabled(gameMusicOn);
+          }
+        } catch (error) {
+          console.log("Direct music toggle failed:", error);
+        }
+
+        gameFrame.contentWindow.postMessage({ type: "setMusic", enabled: gameMusicOn }, "*");
+      }
+    }
+
+    gameSoundToggle.addEventListener("click", () => {
+      gameMusicOn = !gameMusicOn;
+      updateGameSound();
+    });
+
+    gameFrame.addEventListener("load", updateGameSound);
+  </script>
+</body>
+</html>
