@@ -177,7 +177,7 @@
 
     function applySoundState() {
       bgmusic.muted = !musicEnabled;
-      video.muted = true;
+      video.muted = state !== "dance";
     }
 
     async function setMusicEnabled(enabled) {
@@ -323,6 +323,7 @@
       video.src = idleSrc;
       video.loop = true;
       video.muted = true;
+      video.volume = 1.0;
       video.currentTime = 0;
 
       video.play().catch((error) => {
@@ -343,7 +344,8 @@
 
       video.src = chosenDance;
       video.loop = false;
-      video.muted = true;
+      video.muted = false;
+      video.volume = 1.0;
       video.currentTime = 0;
 
       video.play().catch((error) => {
@@ -394,7 +396,8 @@
       overlay.disablePictureInPicture = true;
       overlay.disableRemotePlayback = true;
       overlay.controlsList = "nodownload noplaybackrate noremoteplayback";
-      overlay.muted = true;
+      overlay.muted = false;
+      overlay.volume = 1.0;
       overlay.src = set.webm + "?t=" + Date.now();
       overlay.currentTime = 0;
       overlay.loop = false;
