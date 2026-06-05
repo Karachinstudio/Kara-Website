@@ -118,12 +118,12 @@
     const cursor = document.getElementById("cursor");
     const loadingScreen = document.getElementById("loadingScreen");
 
-    const idleSrc = "idle.mp4";
+    const idleSrc = "Mobile/idle.mp4";
     const dances = [
-      { src: "dance1.mp4", weight: 0.7 },
-      { src: "dance2.mp4", weight: 1 },
-      { src: "dance3.mp4", weight: 1 },
-      { src: "dance4.mp4", weight: 1 }
+      { src: "Mobile/dance1.mp4", weight: 0.7 },
+      { src: "Mobile/dance2.mp4", weight: 1 },
+      { src: "Mobile/dance3.mp4", weight: 1 },
+      { src: "Mobile/dance4.mp4", weight: 1 }
     ];
 
     const idleClickSets = [
@@ -175,6 +175,10 @@
       return true;
     }
 
+    function isCurrentDance(filename) {
+      return currentDance && currentDance.endsWith(filename);
+    }
+
     function applySoundState() {
       bgmusic.muted = !musicEnabled;
       video.muted = state !== "dance";
@@ -222,7 +226,7 @@
 
     function pickRandomDance() {
       if (isMobilePlayback()) {
-        return Math.random() < 0.5 ? "dance3.mp4" : "dance4.mp4";
+        return Math.random() < 0.5 ? "Mobile/dance3.mp4" : "Mobile/dance4.mp4";
       }
 
       const totalWeight = dances.reduce((sum, dance) => sum + dance.weight, 0);
@@ -243,7 +247,7 @@
     }
 
     function pickRandomDanceTriggerSet() {
-      if (currentDance === "dance1.mp4") {
+      if (isCurrentDance("dance1.mp4")) {
         return { webm: "click03.webm", mp3: "click03.mp3" };
       }
 
@@ -294,7 +298,7 @@
     function updateMusicEffectForCurrentState() {
       if (!bgMusicStarted) return;
 
-      if (currentDance === "dance1.mp4") {
+      if (isCurrentDance("dance1.mp4")) {
         setDance1MusicEffect();
       } else {
         setNormalMusicEffect();
@@ -305,7 +309,7 @@
       const viewportScale = Math.min(window.innerWidth / 720, window.innerHeight / 900, 1);
       let size = normalClickSize;
 
-      if (state === "dance" && currentDance === "dance4.mp4") {
+      if (state === "dance" && isCurrentDance("dance4.mp4")) {
         size = dance4ClickSize;
       } else if (state === "dance") {
         size = danceClickSize;
@@ -479,7 +483,7 @@
         playDance();
       } else {
         playKeyOverlay();
-        if (currentDance === "dance1.mp4") {
+        if (isCurrentDance("dance1.mp4")) {
           flashColor("red", 200);
         }
 
@@ -492,7 +496,7 @@
         playIdleClickOverlay(x, y);
       } else {
         playDanceTriggerOverlay(x, y);
-        if (currentDance === "dance1.mp4") {
+        if (isCurrentDance("dance1.mp4")) {
           flashColor("red", 200);
         }
       }
