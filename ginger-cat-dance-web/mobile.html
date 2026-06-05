@@ -185,10 +185,6 @@
       musicEnabled = enabled;
       applySoundState();
 
-      if (isMobilePlayback()) {
-        return;
-      }
-
       if (musicEnabled) {
         await startBackgroundMusic();
       } else {
@@ -252,7 +248,7 @@
     }
 
     async function startBackgroundMusic() {
-      if (isMobilePlayback() || !musicEnabled) {
+      if (!musicEnabled) {
         return;
       }
 
@@ -389,81 +385,7 @@
     }
 
     function playOverlay(set, x, y) {
-      hasStartedAudio = true;
-
-      trimActiveOverlays();
-
-      const overlay = document.createElement("video");
-      overlay.className = "clickOverlay";
-      overlay.playsInline = true;
-      overlay.disablePictureInPicture = true;
-      overlay.disableRemotePlayback = true;
-      overlay.controlsList = "nodownload noplaybackrate noremoteplayback";
-      overlay.muted = false;
-      overlay.volume = 1.0;
-      addOverlaySource(overlay, set.mov, "video/quicktime");
-      addOverlaySource(overlay, set.webm, "video/webm");
-      overlay.currentTime = 0;
-      overlay.loop = false;
-      overlay.playbackRate = 1.25;
-      overlay.style.left = x + "px";
-      overlay.style.top = y + "px";
-      overlay.style.width = getCurrentClickSize() + "px";
-
-      overlay.style.backgroundColor = "transparent";
-      overlay.preload = "auto";
-      overlayLayer.appendChild(overlay);
-      activeOverlays.push(overlay);
-
-      if (shouldPlayClickSounds()) {
-        const sound = new Audio(set.mp3);
-        sound.muted = false;
-        sound.playbackRate = 1.0;
-        activeSounds.push(sound);
-
-        const removeSound = () => {
-          activeSounds = activeSounds.filter((activeSound) => activeSound !== sound);
-        };
-
-        sound.addEventListener("ended", removeSound, { once: true });
-        sound.addEventListener("error", removeSound, { once: true });
-        sound.play().catch((error) => {
-          console.log("Click sound failed:", error);
-          removeSound();
-        });
-      }
-
-      const revealOverlay = () => {
-        overlay.style.visibility = "visible";
-        overlay.style.opacity = "1";
-      };
-
-      const revealWhenReady = () => {
-        if (typeof overlay.requestVideoFrameCallback === "function") {
-          overlay.requestVideoFrameCallback(() => {
-            revealOverlay();
-          });
-        } else {
-          requestAnimationFrame(() => {
-            revealOverlay();
-          });
-        }
-      };
-
-      overlay.addEventListener("playing", revealWhenReady, { once: true });
-
-      overlay.play().catch((error) => {
-        console.log("Overlay play failed:", error);
-        removeOverlay(overlay);
-      });
-
-      overlay.addEventListener("ended", () => {
-        removeOverlay(overlay);
-      });
-
-      overlay.addEventListener("error", () => {
-        removeOverlay(overlay);
-      });
+      return;
     }
 
     function playIdleClickOverlay(x, y) {
@@ -481,24 +403,14 @@
     async function handleKeyboardTrigger() {
       if (state === "idle") {
         playDance();
-      } else {
-        playKeyOverlay();
-        if (currentDance === "dance1.mp4") {
-          flashColor("red", 200);
-        }
-
-        startBackgroundMusic();
       }
+
+      startBackgroundMusic();
     }
 
     async function handleMouseClick(x, y) {
       if (state === "idle") {
-        playIdleClickOverlay(x, y);
-      } else {
-        playDanceTriggerOverlay(x, y);
-        if (currentDance === "dance1.mp4") {
-          flashColor("red", 200);
-        }
+        playDance();
       }
 
       startBackgroundMusic();
@@ -510,7 +422,6 @@
 
       if (isMobilePlayback()) {
         await handleMouseClick(x, y);
-        await maybeTriggerKeyboardAction();
         return;
       }
 

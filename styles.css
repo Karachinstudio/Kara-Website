@@ -705,7 +705,7 @@ a:hover {
   }
 
   .game-sound-toggle {
-    display: none;
+    display: block;
   }
 
   .home-page .homepage-game {
