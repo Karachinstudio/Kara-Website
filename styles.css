@@ -701,19 +701,20 @@ a:hover {
   }
 
   .homepage-game {
-    width: min(52vw, 250px);
+    width: min(60vw, 290px);
     height: min(42vh, 390px);
     margin-bottom: 0;
     margin-top: 10vh;
   }
 
+  .homepage-game iframe {
+    width: calc(100% + 12px);
+    height: calc(100% + 8px);
+    transform: translate(-4px, -4px);
+  }
+
   .game-sound-toggle {
-    display: block;
-    top: 8px;
-    right: 8px;
-    bottom: auto;
-    padding: 1px 4px;
-    font-size: 0.5rem;
+    display: none;
   }
 
   .home-page .homepage-game {
@@ -783,7 +784,11 @@ a:hover {
   }
 
   .site-footer {
-    display: none;
+    position: static;
+    display: block;
+    margin-top: 10vh;
+    padding-left: 0;
+    text-align: left;
   }
 
   .fullscreen-gallery {

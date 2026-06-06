@@ -25,9 +25,9 @@
 
     #video {
       position: fixed;
-      left: -4px;
+      left: 0;
       top: -4px;
-      width: calc(100vw + 8px);
+      width: calc(100vw + 32px);
       height: calc(100vh + 8px);
       display: block;
       object-fit: fill;
@@ -196,14 +196,9 @@
     }
 
     async function setMusicEnabled(enabled) {
-      musicEnabled = enabled;
+      musicEnabled = false;
       applySoundState();
-
-      if (musicEnabled) {
-        await startBackgroundMusic();
-      } else {
-        bgmusic.pause();
-      }
+      bgmusic.pause();
     }
 
     function hideLoadingScreen() {
@@ -262,34 +257,7 @@
     }
 
     async function startBackgroundMusic() {
-      if (!musicEnabled) {
-        return;
-      }
-
-      if (bgMusicStarted) {
-        if (musicEnabled && bgmusic.paused) {
-          try {
-            await bgmusic.play();
-          } catch (error) {
-            console.log("Music resume failed:", error);
-          }
-        }
-
-        return;
-      }
-
-      bgMusicStarted = true;
-      bgmusic.muted = !musicEnabled;
-      bgmusic.volume = 0.6;
-      bgmusic.playbackRate = 1.0;
-      bgmusic.currentTime = 0;
-
-      try {
-        await bgmusic.play();
-      } catch (error) {
-        console.log("Music play failed:", error);
-        bgMusicStarted = false;
-      }
+      return;
     }
 
     function setNormalMusicEffect() {
