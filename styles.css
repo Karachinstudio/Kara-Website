@@ -221,11 +221,16 @@ a:hover {
   max-width: 620px;
 }
 
+.homepage-game-block {
+  position: relative;
+  width: min(420px, calc(100vw - var(--page-padding) * 2));
+}
+
 .homepage-game {
   display: grid;
   place-items: center;
   position: relative;
-  width: min(420px, calc(100vw - var(--page-padding) * 2));
+  width: 100%;
   height: min(560px, 62vh);
   overflow: hidden;
   margin: 0;
@@ -238,7 +243,7 @@ a:hover {
   --home-game-on-now-gap: 32px;
 }
 
-.home-page .homepage-game {
+.home-page .homepage-game-block {
   margin-left: max(
     0px,
     min(
@@ -258,43 +263,21 @@ a:hover {
 }
 
 .game-sound-toggle {
-  position: absolute;
-  top: auto;
-  right: 10px;
-  bottom: 10px;
-  z-index: 2;
+  display: block;
+  margin: 7px 0 0 auto;
   opacity: 0;
   visibility: hidden;
-  border: 0;
-  width: 52px;
-  height: 52px;
-  padding: 0;
+  border: 1px solid currentColor;
+  width: auto;
+  height: auto;
+  padding: 3px 6px;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: var(--text);
   background: transparent;
   cursor: var(--cursor-pointer);
   transition: opacity 180ms ease, visibility 180ms ease;
-}
-
-.game-sound-toggle img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.game-sound-toggle.is-attention {
-  animation: sound-toggle-glow 900ms ease-in-out infinite alternate;
-}
-
-@keyframes sound-toggle-glow {
-  from {
-    filter: drop-shadow(0 0 3px rgba(255, 79, 163, 0.5));
-    transform: scale(1);
-  }
-
-  to {
-    filter: drop-shadow(0 0 12px rgba(255, 79, 163, 1));
-    transform: scale(1.06);
-  }
 }
 
 .game-sound-toggle.is-ready {
@@ -302,11 +285,13 @@ a:hover {
   visibility: visible;
 }
 
+.game-sound-toggle.is-off {
+  text-decoration: line-through;
+}
+
 .game-sound-toggle:hover,
 .game-sound-toggle:focus-visible {
-  opacity: 1;
-  filter: drop-shadow(0 0 10px rgba(255, 79, 163, 1));
-  transform: scale(1.08);
+  color: var(--hover-link);
 }
 
 .home-page .on-now {
@@ -754,8 +739,12 @@ a:hover {
     display: none;
   }
 
-  .homepage-game {
+  .homepage-game-block {
     width: min(60vw, 290px);
+  }
+
+  .homepage-game {
+    width: 100%;
     height: min(49vh, 455px);
     margin-bottom: 0;
     margin-top: 10vh;
@@ -771,12 +760,12 @@ a:hover {
     display: block;
   }
 
-  .home-page .homepage-game {
+  .home-page .homepage-game-block {
     margin-left: auto;
     margin-right: auto;
   }
 
-  .home-page.uses-mobile-game .homepage-game {
+  .home-page.uses-mobile-game .homepage-game-block {
     position: fixed;
     top: 47dvh;
     left: 50%;

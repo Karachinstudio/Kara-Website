@@ -19,18 +19,18 @@
   </header>
 
   <main class="home-layout">
-    <section class="homepage-game" aria-label="Ginger Cat Dance game">
-      <button class="game-sound-toggle" type="button" aria-pressed="true" aria-label="Turn sound off">
-        <img src="ginger-cat-dance-web/music-on.png" alt="" />
-      </button>
-      <iframe
-        id="ginger-cat-game"
-        src="ginger-cat-dance-web/index.html"
-        title="Ginger Cat Dance"
-        loading="eager"
-        allow="autoplay"
-      ></iframe>
-    </section>
+    <div class="homepage-game-block">
+      <section class="homepage-game" aria-label="Ginger Cat Dance game">
+        <iframe
+          id="ginger-cat-game"
+          src="ginger-cat-dance-web/index.html"
+          title="Ginger Cat Dance"
+          loading="eager"
+          allow="autoplay"
+        ></iframe>
+      </section>
+      <button class="game-sound-toggle" type="button" aria-pressed="true">Sound On</button>
+    </div>
     <section class="on-now">
       <h2>On Now</h2>
 
@@ -59,10 +59,10 @@
   <script>
     const gameFrame = document.getElementById("ginger-cat-game");
     const gameSoundToggle = document.querySelector(".game-sound-toggle");
-    const gameSoundImage = gameSoundToggle.querySelector("img");
     const desktopGameSrc = "ginger-cat-dance-web/index.html";
     const mobileGameSrc = "ginger-cat-dance-web/Mobile/mobile.html";
-    let gameMusicOn = true;
+    const gameSoundStorageKey = "karaChinGameSound";
+    let gameMusicOn = localStorage.getItem(gameSoundStorageKey) !== "off";
     let soundAttentionTimeout = null;
 
     function shouldUseMobileGame() {
@@ -81,9 +81,8 @@
     }
 
     function updateGameSound() {
-      gameSoundImage.src = gameMusicOn
-        ? "ginger-cat-dance-web/music-on.png"
-        : "ginger-cat-dance-web/music-off.png";
+      gameSoundToggle.textContent = "Sound On";
+      gameSoundToggle.classList.toggle("is-off", !gameMusicOn);
       gameSoundToggle.setAttribute("aria-pressed", String(gameMusicOn));
       gameSoundToggle.setAttribute("aria-label", gameMusicOn ? "Turn sound off" : "Turn sound on");
 
@@ -109,6 +108,7 @@
       clearTimeout(soundAttentionTimeout);
       gameSoundToggle.classList.remove("is-attention");
       gameMusicOn = !gameMusicOn;
+      localStorage.setItem(gameSoundStorageKey, gameMusicOn ? "on" : "off");
       updateGameSound();
     });
 
@@ -129,6 +129,7 @@
       }
     });
     window.addEventListener("resize", updateGameFrameSource);
+    updateGameSound();
     updateGameFrameSource();
   </script>
 </body>
