@@ -93,6 +93,8 @@
       font-weight: bold;
       color: #111;
       background: #ffd6e8;
+      padding: 24px;
+      text-align: center;
       transition: opacity 180ms ease, visibility 180ms ease;
     }
 
@@ -164,6 +166,7 @@
     let interactionCount = 0;
     let interactionThreshold = pickInteractionThreshold();
     let hasHiddenLoadingScreen = false;
+    let slowLoadingTimeout = null;
 
     video.disablePictureInPicture = true;
     video.disableRemotePlayback = true;
@@ -206,7 +209,15 @@
       }
 
       hasHiddenLoadingScreen = true;
+      clearTimeout(slowLoadingTimeout);
       loadingScreen.classList.add("is-hidden");
+      window.parent.postMessage({ type: "gameReady" }, "*");
+    }
+
+    function showLoadingMessage(message) {
+      if (!hasHiddenLoadingScreen) {
+        loadingScreen.textContent = message;
+      }
     }
 
     function pickInteractionThreshold() {
@@ -527,7 +538,15 @@
 
     video.addEventListener("canplay", hideLoadingScreen, { once: true });
     video.addEventListener("playing", hideLoadingScreen, { once: true });
-    window.setTimeout(hideLoadingScreen, 6000);
+    video.addEventListener("error", () => {
+      showLoadingMessage("The game could not load. Please refresh and try again.");
+    }, { once: true });
+    window.addEventListener("offline", () => {
+      showLoadingMessage("You appear to be offline. The game needs an internet connection.");
+    });
+    slowLoadingTimeout = window.setTimeout(() => {
+      showLoadingMessage("Still loading - your connection may be slow.");
+    }, 6000);
 
     document.addEventListener("click", async (event) => {
       if (Date.now() < ignoreClickUntil) return;

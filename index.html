@@ -20,7 +20,9 @@
 
   <main class="home-layout">
     <section class="homepage-game" aria-label="Ginger Cat Dance game">
-      <button class="game-sound-toggle" type="button" aria-pressed="false">Music Off</button>
+      <button class="game-sound-toggle" type="button" aria-pressed="false" aria-label="Turn music on">
+        <img src="ginger-cat-dance-web/music-off.png" alt="" />
+      </button>
       <iframe
         id="ginger-cat-game"
         src="ginger-cat-dance-web/index.html"
@@ -33,7 +35,13 @@
       <h2>On Now</h2>
 
       <p>
-        <a href="https://www.ikon-gallery.org/" target="_blank" rel="noreferrer">
+        <a class="on-now-link" href="https://www.ikon-gallery.org/" target="_blank" rel="noreferrer">
+          <img
+            class="on-now-preview"
+            src="on-now/break-the-mould-landscape.jpg"
+            alt=""
+            loading="lazy"
+          />
           Break the Mould<br />
           Ikon Gallery, Birmingham UK
         </a><br />
@@ -51,25 +59,32 @@
   <script>
     const gameFrame = document.getElementById("ginger-cat-game");
     const gameSoundToggle = document.querySelector(".game-sound-toggle");
+    const gameSoundImage = gameSoundToggle.querySelector("img");
     const desktopGameSrc = "ginger-cat-dance-web/index.html";
     const mobileGameSrc = "ginger-cat-dance-web/Mobile/mobile.html";
     let gameMusicOn = false;
 
     function shouldUseMobileGame() {
-      return window.matchMedia("(max-width: 700px), (pointer: coarse)").matches;
+      return window.matchMedia("(pointer: coarse)").matches;
     }
 
     function updateGameFrameSource() {
-      const nextSrc = shouldUseMobileGame() ? mobileGameSrc : desktopGameSrc;
+      const useMobileGame = shouldUseMobileGame();
+      const nextSrc = useMobileGame ? mobileGameSrc : desktopGameSrc;
+      document.body.classList.toggle("uses-mobile-game", useMobileGame);
 
       if (!gameFrame.getAttribute("src").endsWith(nextSrc)) {
+        gameSoundToggle.classList.remove("is-ready");
         gameFrame.src = nextSrc;
       }
     }
 
     function updateGameSound() {
-      gameSoundToggle.textContent = gameMusicOn ? "Music On" : "Music Off";
+      gameSoundImage.src = gameMusicOn
+        ? "ginger-cat-dance-web/music-on.png"
+        : "ginger-cat-dance-web/music-off.png";
       gameSoundToggle.setAttribute("aria-pressed", String(gameMusicOn));
+      gameSoundToggle.setAttribute("aria-label", gameMusicOn ? "Turn music off" : "Turn music on");
 
       if (gameFrame.contentWindow) {
         try {
@@ -90,6 +105,11 @@
     });
 
     gameFrame.addEventListener("load", updateGameSound);
+    window.addEventListener("message", (event) => {
+      if (event.source === gameFrame.contentWindow && event.data?.type === "gameReady") {
+        gameSoundToggle.classList.add("is-ready");
+      }
+    });
     window.addEventListener("resize", updateGameFrameSource);
     updateGameFrameSource();
   </script>

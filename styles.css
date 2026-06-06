@@ -225,14 +225,14 @@ a:hover {
   display: grid;
   place-items: center;
   position: relative;
-  width: min(460px, calc(100vw - var(--page-padding) * 2));
+  width: min(420px, calc(100vw - var(--page-padding) * 2));
   height: min(560px, 62vh);
   overflow: hidden;
   margin: 0;
 }
 
 .home-page {
-  --home-game-width: 460px;
+  --home-game-width: 420px;
   --home-game-left: calc(var(--page-padding) + var(--feed-width) + var(--feed-gap));
   --home-on-now-width: 320px;
   --home-game-on-now-gap: 32px;
@@ -262,19 +262,32 @@ a:hover {
   top: 10px;
   right: 10px;
   z-index: 2;
+  opacity: 0;
+  visibility: hidden;
   border: 0;
-  padding: 4px 7px;
-  font: inherit;
-  font-size: 0.72rem;
-  font-weight: bold;
-  color: #ff4fa3;
-  background: rgba(255, 255, 255, 0.82);
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: transparent;
   cursor: var(--cursor-pointer);
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.game-sound-toggle img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.game-sound-toggle.is-ready {
+  opacity: 1;
+  visibility: visible;
 }
 
 .game-sound-toggle:hover,
 .game-sound-toggle:focus-visible {
-  color: var(--hover-link);
+  opacity: 0.78;
 }
 
 .home-page .on-now {
@@ -302,6 +315,28 @@ a:hover {
 
 .on-now p {
   margin: 0 0 16px;
+}
+
+.on-now-link {
+  display: block;
+}
+
+.on-now-preview {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
+  width: 72%;
+  height: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 160ms ease, visibility 160ms ease;
+}
+
+.on-now-link:hover .on-now-preview,
+.on-now-link:focus-visible .on-now-preview {
+  opacity: 1;
+  visibility: visible;
 }
 
 .site-footer {
@@ -702,7 +737,7 @@ a:hover {
 
   .homepage-game {
     width: min(60vw, 290px);
-    height: min(42vh, 390px);
+    height: min(49vh, 455px);
     margin-bottom: 0;
     margin-top: 10vh;
   }
@@ -714,7 +749,7 @@ a:hover {
   }
 
   .game-sound-toggle {
-    display: none;
+    display: block;
   }
 
   .home-page .homepage-game {
@@ -722,9 +757,21 @@ a:hover {
     margin-right: auto;
   }
 
+  .home-page.uses-mobile-game .homepage-game {
+    position: fixed;
+    top: 47dvh;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
+  }
+
   .project-page .site-header,
   .project-page .home-layout {
     padding-left: 0;
+  }
+
+  .project-page .home-layout {
+    padding-bottom: 72px;
   }
 
   .project-page .site-nav {
@@ -791,6 +838,51 @@ a:hover {
     text-align: left;
   }
 
+  .home-page.uses-mobile-game .site-footer {
+    position: fixed;
+    right: var(--page-padding);
+    bottom: max(var(--page-padding), env(safe-area-inset-bottom));
+    left: var(--page-padding);
+    z-index: 5;
+    margin: 0;
+  }
+
+  .work-index-page .site-footer {
+    position: fixed;
+    right: var(--page-padding);
+    bottom: max(var(--page-padding), env(safe-area-inset-bottom));
+    left: calc(var(--page-padding) + var(--feed-width) + var(--feed-gap));
+    z-index: 5;
+    margin: 0;
+    font-size: 0.72rem;
+    text-align: left;
+  }
+
+  .project-page .site-footer {
+    position: fixed;
+    right: var(--page-padding);
+    bottom: max(var(--page-padding), env(safe-area-inset-bottom));
+    left: var(--page-padding);
+    z-index: 5;
+    margin: 0;
+    text-align: left;
+  }
+
+  .cv-index-page .site-footer {
+    position: static;
+    margin: 48px 0 max(var(--page-padding), env(safe-area-inset-bottom));
+    text-align: left;
+  }
+
+  .home-page:not(.uses-mobile-game) .site-footer {
+    position: fixed;
+    right: var(--page-padding);
+    bottom: var(--page-padding);
+    left: auto;
+    margin: 0;
+    text-align: right;
+  }
+
   .fullscreen-gallery {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
@@ -810,4 +902,8 @@ a:hover {
     top: 16px;
     right: 16px;
   }
+}
+
+.home-page.uses-mobile-game .game-sound-toggle {
+  display: none;
 }
