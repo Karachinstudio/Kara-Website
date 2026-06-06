@@ -45,9 +45,15 @@ function playClickEffect(x, y) {
     "pointer-events:none",
     "transform:translate(-50%,-50%)",
     "object-fit:contain",
-    "background:white"
+    "visibility:hidden",
+    "opacity:0",
+    "background:transparent"
   ].join(";");
 
+  effect.addEventListener("playing", () => {
+    effect.style.visibility = "visible";
+    effect.style.opacity = "1";
+  }, { once: true });
   effect.addEventListener("ended", () => removeClickEffect(effect), { once: true });
   effect.addEventListener("error", () => removeClickEffect(effect), { once: true });
   document.body.append(effect);
@@ -101,7 +107,7 @@ document.addEventListener("click", async (event) => {
 
 document.addEventListener("pointerdown", (event) => {
   if (
-    document.body.classList.contains("home-page") ||
+    !document.body.classList.contains("cv-index-page") ||
     event.button !== 0 ||
     event.target.closest(
       "a, button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
