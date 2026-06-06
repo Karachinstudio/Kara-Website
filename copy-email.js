@@ -14,7 +14,7 @@ let lastPointerX = window.innerWidth / 2;
 let lastPointerY = window.innerHeight / 2;
 
 function pickClickEffectThreshold() {
-  return Math.floor(Math.random() * 16) + 5;
+  return Math.floor(Math.random() * 10) + 1;
 }
 
 function countClickEffectInteraction(x, y) {
@@ -36,6 +36,12 @@ function removeClickEffect(effect) {
     activeClickEffects.splice(effectIndex, 1);
   }
 
+  if (effect.clickSound) {
+    effect.clickSound.pause();
+    effect.clickSound.removeAttribute("src");
+    effect.clickSound.load();
+  }
+
   effect.pause();
   effect.removeAttribute("src");
   effect.load();
@@ -48,9 +54,12 @@ function playClickEffect(x, y) {
   }
 
   const effect = document.createElement("video");
+  const effectIndex = Math.floor(Math.random() * clickEffectSources.length);
+  const sound = new Audio(clickEffectSources[effectIndex].replace(/\.webm$/, ".mp3"));
   const size = Math.min(280, Math.max(150, window.innerWidth * 0.22));
 
-  effect.src = clickEffectSources[Math.floor(Math.random() * clickEffectSources.length)];
+  effect.src = clickEffectSources[effectIndex];
+  effect.clickSound = sound;
   effect.autoplay = true;
   effect.muted = true;
   effect.playsInline = true;
@@ -79,6 +88,8 @@ function playClickEffect(x, y) {
   document.body.append(effect);
   activeClickEffects.push(effect);
 
+  sound.volume = 0.72;
+  sound.play().catch(() => {});
   effect.play().catch(() => {
     removeClickEffect(effect);
   });
@@ -129,7 +140,7 @@ document.addEventListener("pointerdown", (event) => {
   if (
     event.button !== 0 ||
     event.target.closest(
-      "a, button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
+      "button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
     )
   ) {
     return;
