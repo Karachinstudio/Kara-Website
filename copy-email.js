@@ -8,17 +8,30 @@ const clickEffectSources = Array.from(
 );
 const activeClickEffects = [];
 const maxActiveClickEffects = 3;
-let clickEffectInteractionCount = 0;
-let clickEffectThreshold = pickClickEffectThreshold();
+const clickEffectCountKey = "karaClickEffectCount";
+const clickEffectThresholdKey = "karaClickEffectThreshold";
+let clickEffectInteractionCount = Number(sessionStorage.getItem(clickEffectCountKey)) || 0;
+let clickEffectThreshold = Number(sessionStorage.getItem(clickEffectThresholdKey)) || pickClickEffectThreshold();
 let lastPointerX = window.innerWidth / 2;
 let lastPointerY = window.innerHeight / 2;
+
+sessionStorage.setItem(clickEffectThresholdKey, String(clickEffectThreshold));
+
+function shouldDisableClickEffects() {
+  return window.matchMedia("(pointer: coarse), (max-width: 700px)").matches;
+}
 
 function pickClickEffectThreshold() {
   return Math.floor(Math.random() * 20) + 1;
 }
 
 function countClickEffectInteraction(x, y) {
+  if (shouldDisableClickEffects()) {
+    return;
+  }
+
   clickEffectInteractionCount += 1;
+  sessionStorage.setItem(clickEffectCountKey, String(clickEffectInteractionCount));
 
   if (clickEffectInteractionCount < clickEffectThreshold) {
     return;
@@ -26,6 +39,8 @@ function countClickEffectInteraction(x, y) {
 
   clickEffectInteractionCount = 0;
   clickEffectThreshold = pickClickEffectThreshold();
+  sessionStorage.setItem(clickEffectCountKey, "0");
+  sessionStorage.setItem(clickEffectThresholdKey, String(clickEffectThreshold));
   playClickEffect(x, y);
 }
 
@@ -140,7 +155,7 @@ document.addEventListener("pointerdown", (event) => {
   if (
     event.button !== 0 ||
     event.target.closest(
-      "button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
+      "form button, input, select, textarea, label, summary, iframe"
     )
   ) {
     return;
@@ -168,7 +183,7 @@ document.addEventListener("keydown", (event) => {
   }
 
   countClickEffectInteraction(lastPointerX, lastPointerY);
-});
+}, { capture: true });
 
 document.querySelectorAll(".single-gallery-figure").forEach((figure) => {
   const mediaItems = figure.querySelectorAll("img, video");

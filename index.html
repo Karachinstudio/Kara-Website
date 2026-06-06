@@ -61,8 +61,7 @@
     const gameSoundToggle = document.querySelector(".game-sound-toggle");
     const desktopGameSrc = "ginger-cat-dance-web/index.html";
     const mobileGameSrc = "ginger-cat-dance-web/Mobile/mobile.html";
-    const gameSoundStorageKey = "karaChinGameSound";
-    let gameMusicOn = localStorage.getItem(gameSoundStorageKey) !== "off";
+    let gameMusicOn = true;
     let soundAttentionTimeout = null;
 
     function shouldUseMobileGame() {
@@ -108,7 +107,6 @@
       clearTimeout(soundAttentionTimeout);
       gameSoundToggle.classList.remove("is-attention");
       gameMusicOn = !gameMusicOn;
-      localStorage.setItem(gameSoundStorageKey, gameMusicOn ? "on" : "off");
       updateGameSound();
     });
 
