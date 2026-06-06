@@ -8,6 +8,26 @@ const clickEffectSources = Array.from(
 );
 const activeClickEffects = [];
 const maxActiveClickEffects = 3;
+let clickEffectInteractionCount = 0;
+let clickEffectThreshold = pickClickEffectThreshold();
+let lastPointerX = window.innerWidth / 2;
+let lastPointerY = window.innerHeight / 2;
+
+function pickClickEffectThreshold() {
+  return Math.floor(Math.random() * 16) + 5;
+}
+
+function countClickEffectInteraction(x, y) {
+  clickEffectInteractionCount += 1;
+
+  if (clickEffectInteractionCount < clickEffectThreshold) {
+    return;
+  }
+
+  clickEffectInteractionCount = 0;
+  clickEffectThreshold = pickClickEffectThreshold();
+  playClickEffect(x, y);
+}
 
 function removeClickEffect(effect) {
   const effectIndex = activeClickEffects.indexOf(effect);
@@ -107,8 +127,6 @@ document.addEventListener("click", async (event) => {
 
 document.addEventListener("pointerdown", (event) => {
   if (
-    !document.body.classList.contains("cv-index-page") ||
-    window.matchMedia("(pointer: coarse), (max-width: 700px)").matches ||
     event.button !== 0 ||
     event.target.closest(
       "a, button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
@@ -117,7 +135,28 @@ document.addEventListener("pointerdown", (event) => {
     return;
   }
 
-  playClickEffect(event.clientX, event.clientY);
+  lastPointerX = event.clientX;
+  lastPointerY = event.clientY;
+  countClickEffectInteraction(lastPointerX, lastPointerY);
+});
+
+document.addEventListener("pointermove", (event) => {
+  lastPointerX = event.clientX;
+  lastPointerY = event.clientY;
+});
+
+document.addEventListener("keydown", (event) => {
+  if (
+    event.repeat ||
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    event.target.closest("input, select, textarea, [contenteditable='true']")
+  ) {
+    return;
+  }
+
+  countClickEffectInteraction(lastPointerX, lastPointerY);
 });
 
 document.querySelectorAll(".single-gallery-figure").forEach((figure) => {
