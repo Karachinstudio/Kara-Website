@@ -20,8 +20,8 @@
 
   <main class="home-layout">
     <section class="homepage-game" aria-label="Ginger Cat Dance game">
-      <button class="game-sound-toggle" type="button" aria-pressed="false" aria-label="Turn sound on">
-        <img src="ginger-cat-dance-web/music-off.png" alt="" />
+      <button class="game-sound-toggle" type="button" aria-pressed="true" aria-label="Turn sound off">
+        <img src="ginger-cat-dance-web/music-on.png" alt="" />
       </button>
       <iframe
         id="ginger-cat-game"
@@ -62,7 +62,7 @@
     const gameSoundImage = gameSoundToggle.querySelector("img");
     const desktopGameSrc = "ginger-cat-dance-web/index.html";
     const mobileGameSrc = "ginger-cat-dance-web/Mobile/mobile.html";
-    let gameMusicOn = false;
+    let gameMusicOn = true;
     let soundAttentionTimeout = null;
 
     function shouldUseMobileGame() {
@@ -113,6 +113,11 @@
     });
 
     gameFrame.addEventListener("load", updateGameSound);
+    document.addEventListener("pointerdown", () => {
+      if (gameMusicOn && gameFrame.contentWindow) {
+        gameFrame.contentWindow.setGameMusicEnabled?.(true);
+      }
+    }, { once: true });
     window.addEventListener("message", (event) => {
       if (event.source === gameFrame.contentWindow && event.data?.type === "gameReady") {
         gameSoundToggle.classList.add("is-ready");
