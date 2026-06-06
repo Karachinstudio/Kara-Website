@@ -108,6 +108,7 @@ document.addEventListener("click", async (event) => {
 document.addEventListener("pointerdown", (event) => {
   if (
     !document.body.classList.contains("cv-index-page") ||
+    window.matchMedia("(pointer: coarse), (max-width: 700px)").matches ||
     event.button !== 0 ||
     event.target.closest(
       "a, button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
