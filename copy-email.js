@@ -155,7 +155,7 @@ document.addEventListener("pointerdown", (event) => {
   if (
     event.button !== 0 ||
     event.target.closest(
-      "form button, input, select, textarea, label, summary, iframe"
+      "form button, .game-sound-toggle, input, select, textarea, label, summary, iframe"
     )
   ) {
     return;

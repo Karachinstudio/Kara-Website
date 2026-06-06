@@ -654,11 +654,15 @@
     });
 
     window.addEventListener("message", (event) => {
-      if (!event.data || event.data.type !== "setMusic") {
+      if (!event.data) {
         return;
       }
 
-      setMusicEnabled(Boolean(event.data.enabled));
+      if (event.data.type === "setMusic") {
+        setMusicEnabled(Boolean(event.data.enabled));
+      } else if (event.data.type === "triggerSoundButtonClick") {
+        playIdleClickOverlay(window.innerWidth - 90, window.innerHeight - 90);
+      }
     });
 
     window.setGameMusicEnabled = setMusicEnabled;

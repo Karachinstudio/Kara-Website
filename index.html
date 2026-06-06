@@ -108,6 +108,10 @@
       gameSoundToggle.classList.remove("is-attention");
       gameMusicOn = !gameMusicOn;
       updateGameSound();
+
+      if (gameFrame.contentWindow) {
+        gameFrame.contentWindow.postMessage({ type: "triggerSoundButtonClick" }, "*");
+      }
     });
 
     gameFrame.addEventListener("load", updateGameSound);
