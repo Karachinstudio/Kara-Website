@@ -28,7 +28,7 @@ function playClickEffect(x, y) {
   }
 
   const effect = document.createElement("video");
-  const size = Math.min(420, Math.max(220, window.innerWidth * 0.32));
+  const size = Math.min(280, Math.max(150, window.innerWidth * 0.22));
 
   effect.src = clickEffectSources[Math.floor(Math.random() * clickEffectSources.length)];
   effect.autoplay = true;
@@ -45,7 +45,7 @@ function playClickEffect(x, y) {
     "pointer-events:none",
     "transform:translate(-50%,-50%)",
     "object-fit:contain",
-    "background:transparent"
+    "background:white"
   ].join(";");
 
   effect.addEventListener("ended", () => removeClickEffect(effect), { once: true });
@@ -101,6 +101,7 @@ document.addEventListener("click", async (event) => {
 
 document.addEventListener("pointerdown", (event) => {
   if (
+    document.body.classList.contains("home-page") ||
     event.button !== 0 ||
     event.target.closest(
       "a, button, input, select, textarea, label, summary, iframe, audio, video, [role='button']"
