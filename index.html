@@ -20,7 +20,7 @@
 
   <main class="home-layout">
     <section class="homepage-game" aria-label="Ginger Cat Dance game">
-      <button class="game-sound-toggle" type="button" aria-pressed="false" aria-label="Turn music on">
+      <button class="game-sound-toggle" type="button" aria-pressed="false" aria-label="Turn sound on">
         <img src="ginger-cat-dance-web/music-off.png" alt="" />
       </button>
       <iframe
@@ -63,6 +63,7 @@
     const desktopGameSrc = "ginger-cat-dance-web/index.html";
     const mobileGameSrc = "ginger-cat-dance-web/Mobile/mobile.html";
     let gameMusicOn = false;
+    let soundAttentionTimeout = null;
 
     function shouldUseMobileGame() {
       return window.matchMedia("(pointer: coarse)").matches;
@@ -84,22 +85,29 @@
         ? "ginger-cat-dance-web/music-on.png"
         : "ginger-cat-dance-web/music-off.png";
       gameSoundToggle.setAttribute("aria-pressed", String(gameMusicOn));
-      gameSoundToggle.setAttribute("aria-label", gameMusicOn ? "Turn music off" : "Turn music on");
+      gameSoundToggle.setAttribute("aria-label", gameMusicOn ? "Turn sound off" : "Turn sound on");
 
       if (gameFrame.contentWindow) {
+        let updatedDirectly = false;
+
         try {
           if (typeof gameFrame.contentWindow.setGameMusicEnabled === "function") {
             gameFrame.contentWindow.setGameMusicEnabled(gameMusicOn);
+            updatedDirectly = true;
           }
         } catch (error) {
           console.log("Direct music toggle failed:", error);
         }
 
-        gameFrame.contentWindow.postMessage({ type: "setMusic", enabled: gameMusicOn }, "*");
+        if (!updatedDirectly) {
+          gameFrame.contentWindow.postMessage({ type: "setMusic", enabled: gameMusicOn }, "*");
+        }
       }
     }
 
     gameSoundToggle.addEventListener("click", () => {
+      clearTimeout(soundAttentionTimeout);
+      gameSoundToggle.classList.remove("is-attention");
       gameMusicOn = !gameMusicOn;
       updateGameSound();
     });
@@ -108,6 +116,11 @@
     window.addEventListener("message", (event) => {
       if (event.source === gameFrame.contentWindow && event.data?.type === "gameReady") {
         gameSoundToggle.classList.add("is-ready");
+        gameSoundToggle.classList.add("is-attention");
+        clearTimeout(soundAttentionTimeout);
+        soundAttentionTimeout = window.setTimeout(() => {
+          gameSoundToggle.classList.remove("is-attention");
+        }, 5000);
       }
     });
     window.addEventListener("resize", updateGameFrameSource);

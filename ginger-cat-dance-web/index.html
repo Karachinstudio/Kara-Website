@@ -167,6 +167,9 @@
     let interactionThreshold = pickInteractionThreshold();
     let hasHiddenLoadingScreen = false;
     let slowLoadingTimeout = null;
+    let idleVideoReady = false;
+    let gameAssetsReady = false;
+    const preloadedMedia = [];
 
     video.disablePictureInPicture = true;
     video.disableRemotePlayback = true;
@@ -176,7 +179,7 @@
     }
 
     function shouldPlayClickSounds() {
-      return true;
+      return musicEnabled;
     }
 
     function isCurrentDance(filename) {
@@ -185,7 +188,18 @@
 
     function applySoundState() {
       bgmusic.muted = !musicEnabled;
-      video.muted = state !== "dance";
+      video.muted = !musicEnabled || state !== "dance";
+      activeOverlays.forEach((overlay) => {
+        overlay.muted = !musicEnabled;
+      });
+
+      if (!musicEnabled) {
+        activeSounds.forEach((sound) => {
+          sound.pause();
+          sound.currentTime = 0;
+        });
+        activeSounds = [];
+      }
     }
 
     async function setMusicEnabled(enabled) {
@@ -218,6 +232,54 @@
       if (!hasHiddenLoadingScreen) {
         loadingScreen.textContent = message;
       }
+    }
+
+    function finishLoadingWhenReady() {
+      if (idleVideoReady && gameAssetsReady) {
+        hideLoadingScreen();
+      }
+    }
+
+    function preloadMedia(src, kind) {
+      return new Promise((resolve) => {
+        const media = kind === "video" ? document.createElement("video") : new Audio();
+        let settled = false;
+
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          resolve();
+        };
+
+        media.preload = "auto";
+        media.src = src;
+
+        if (kind === "video") {
+          media.muted = true;
+          media.playsInline = true;
+        }
+
+        media.addEventListener("loadeddata", finish, { once: true });
+        media.addEventListener("error", finish, { once: true });
+        const timeout = window.setTimeout(finish, 15000);
+
+        preloadedMedia.push(media);
+        media.load();
+      });
+    }
+
+    async function preloadGameAssets() {
+      const clickSets = [...idleClickSets, ...danceTriggerSets];
+      const assets = [
+        ...dances.map((dance) => preloadMedia(dance.src, "video")),
+        ...clickSets.map((set) => preloadMedia(set.webm, "video")),
+        ...clickSets.map((set) => preloadMedia(set.mp3, "audio"))
+      ];
+
+      await Promise.all(assets);
+      gameAssetsReady = true;
+      finishLoadingWhenReady();
     }
 
     function pickInteractionThreshold() {
@@ -360,7 +422,7 @@
 
       video.src = chosenDance;
       video.loop = false;
-      video.muted = false;
+      video.muted = !musicEnabled;
       video.volume = 1.0;
       video.currentTime = 0;
 
@@ -412,9 +474,9 @@
       overlay.disablePictureInPicture = true;
       overlay.disableRemotePlayback = true;
       overlay.controlsList = "nodownload noplaybackrate noremoteplayback";
-      overlay.muted = false;
+      overlay.muted = !musicEnabled;
       overlay.volume = 1.0;
-      overlay.src = set.webm + "?t=" + Date.now();
+      overlay.src = set.webm;
       overlay.currentTime = 0;
       overlay.loop = false;
       overlay.playbackRate = 1.25;
@@ -536,8 +598,13 @@
       }
     });
 
-    video.addEventListener("canplay", hideLoadingScreen, { once: true });
-    video.addEventListener("playing", hideLoadingScreen, { once: true });
+    const markIdleVideoReady = () => {
+      idleVideoReady = true;
+      finishLoadingWhenReady();
+    };
+
+    video.addEventListener("canplay", markIdleVideoReady, { once: true });
+    video.addEventListener("playing", markIdleVideoReady, { once: true });
     video.addEventListener("error", () => {
       showLoadingMessage("The game could not load. Please refresh and try again.");
     }, { once: true });
@@ -595,6 +662,7 @@
 
     window.setGameMusicEnabled = setMusicEnabled;
 
+    preloadGameAssets();
     playIdle();
   </script>
 </body>

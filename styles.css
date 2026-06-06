@@ -19,8 +19,8 @@
   --feed-width: 136px;
   --feed-gap: 44px;
   --scrollbar-lilac: #d8c8f0;
-  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23eadfff' stroke='%23111' stroke-width='0.8' d='M4 3l13 12-6 .5 3.2 5.5-2.7 1.5-3.2-5.5L5 22z'/%3E%3C/svg%3E") 4 3, auto;
-  --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23eadfff' stroke='%23111' stroke-width='0.8' d='M8.7 2.6c.9 0 1.6.7 1.6 1.6v5.2l.5-.6c.6-.6 1.5-.6 2.1 0l.5.5.6-.7c.6-.6 1.5-.6 2.1 0l.4.4.4-.4c.6-.6 1.6-.2 1.6.7v5.4c0 4.3-2.7 7.1-6.8 7.1h-.8c-2.4 0-4.2-1-5.6-3.2l-2-3.3c-.5-.8-.2-1.8.6-2.2.6-.4 1.4-.3 2 .3l1.3 1.5V4.2c0-.9.7-1.6 1.5-1.6z'/%3E%3C/svg%3E") 8 2, pointer;
+  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a7ff' stroke='%23111' stroke-width='0.8' d='M4 3l13 12-6 .5 3.2 5.5-2.7 1.5-3.2-5.5L5 22z'/%3E%3C/svg%3E") 4 3, auto;
+  --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a7ff' stroke='%23111' stroke-width='0.8' d='M8.7 2.6c.9 0 1.6.7 1.6 1.6v5.2l.5-.6c.6-.6 1.5-.6 2.1 0l.5.5.6-.7c.6-.6 1.5-.6 2.1 0l.4.4.4-.4c.6-.6 1.6-.2 1.6.7v5.4c0 4.3-2.7 7.1-6.8 7.1h-.8c-2.4 0-4.2-1-5.6-3.2l-2-3.3c-.5-.8-.2-1.8.6-2.2.6-.4 1.4-.3 2 .3l1.3 1.5V4.2c0-.9.7-1.6 1.5-1.6z'/%3E%3C/svg%3E") 8 2, pointer;
 }
 
 * {
@@ -259,14 +259,15 @@ a:hover {
 
 .game-sound-toggle {
   position: absolute;
-  top: 10px;
+  top: auto;
   right: 10px;
+  bottom: 10px;
   z-index: 2;
   opacity: 0;
   visibility: hidden;
   border: 0;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   padding: 0;
   background: transparent;
   cursor: var(--cursor-pointer);
@@ -280,6 +281,22 @@ a:hover {
   object-fit: contain;
 }
 
+.game-sound-toggle.is-attention {
+  animation: sound-toggle-glow 900ms ease-in-out infinite alternate;
+}
+
+@keyframes sound-toggle-glow {
+  from {
+    filter: drop-shadow(0 0 3px rgba(255, 79, 163, 0.5));
+    transform: scale(1);
+  }
+
+  to {
+    filter: drop-shadow(0 0 12px rgba(255, 79, 163, 1));
+    transform: scale(1.06);
+  }
+}
+
 .game-sound-toggle.is-ready {
   opacity: 1;
   visibility: visible;
@@ -287,7 +304,9 @@ a:hover {
 
 .game-sound-toggle:hover,
 .game-sound-toggle:focus-visible {
-  opacity: 0.78;
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(255, 79, 163, 1));
+  transform: scale(1.08);
 }
 
 .home-page .on-now {
