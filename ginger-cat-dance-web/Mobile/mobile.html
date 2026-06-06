@@ -374,7 +374,7 @@
       const src = clickSounds[Math.floor(Math.random() * clickSounds.length)];
       const sound = new Audio(src);
       sound.muted = false;
-      sound.volume = 1.0;
+      sound.volume = 0.72;
       sound.playbackRate = 1.0;
       activeSounds.push(sound);
 
@@ -518,9 +518,16 @@
       startBackgroundMusic();
     }
 
+    function vibrateOnTap() {
+      if ("vibrate" in navigator) {
+        navigator.vibrate(35);
+      }
+    }
+
     async function handleTouch(x, y) {
       cursorX = x;
       cursorY = y;
+      vibrateOnTap();
 
       if (isMobilePlayback()) {
         await handleMouseClick(x, y);

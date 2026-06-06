@@ -492,6 +492,7 @@
       if (shouldPlayClickSounds()) {
         const sound = new Audio(set.mp3);
         sound.muted = false;
+        sound.volume = 0.72;
         sound.playbackRate = 1.0;
         activeSounds.push(sound);
 
