@@ -14,7 +14,7 @@ let lastPointerX = window.innerWidth / 2;
 let lastPointerY = window.innerHeight / 2;
 
 function pickClickEffectThreshold() {
-  return Math.floor(Math.random() * 10) + 1;
+  return Math.floor(Math.random() * 20) + 1;
 }
 
 function countClickEffectInteraction(x, y) {
