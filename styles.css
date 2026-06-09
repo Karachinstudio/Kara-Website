@@ -559,6 +559,10 @@ a:hover {
   display: none;
 }
 
+img.image-load-error {
+  visibility: hidden;
+}
+
 .gallery-side {
   display: grid;
   grid-template-rows: auto minmax(150px, auto) auto;

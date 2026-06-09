@@ -217,6 +217,24 @@ document.addEventListener("keydown", (event) => {
   countClickEffectInteraction(lastPointerX, lastPointerY);
 }, { capture: true });
 
+document.addEventListener("error", (event) => {
+  if (event.target instanceof HTMLImageElement) {
+    event.target.classList.add("image-load-error");
+  }
+}, true);
+
+document.addEventListener("load", (event) => {
+  if (event.target instanceof HTMLImageElement) {
+    event.target.classList.remove("image-load-error");
+  }
+}, true);
+
+document.querySelectorAll("img").forEach((image) => {
+  if (image.complete && image.getAttribute("src") && image.naturalWidth === 0) {
+    image.classList.add("image-load-error");
+  }
+});
+
 document.querySelectorAll(".single-gallery-figure").forEach((figure) => {
   const mediaItems = figure.querySelectorAll("img, video");
 
