@@ -302,9 +302,9 @@ a:hover {
   border: 1px solid currentColor;
   width: auto;
   height: auto;
-  padding: 3px 6px;
+  padding: 2px 5px;
   font: inherit;
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   font-weight: bold;
   color: var(--text);
   background: transparent;
@@ -518,7 +518,7 @@ a:hover {
 
 .single-gallery-figure.is-loading {
   min-height: min(62vh, 620px);
-  background: #e6e6e6;
+  background: transparent;
 }
 
 .single-gallery-figure.is-loading::before {
@@ -533,7 +533,7 @@ a:hover {
   font-weight: bold;
   color: #777;
   text-align: center;
-  background: #e6e6e6;
+  background: transparent;
   pointer-events: none;
 }
 

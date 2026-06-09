@@ -12,6 +12,8 @@ const clickEffectCountKey = "karaClickEffectCount";
 const clickEffectThresholdKey = "karaClickEffectThreshold";
 let clickEffectInteractionCount = Number(sessionStorage.getItem(clickEffectCountKey)) || 0;
 let clickEffectThreshold = Number(sessionStorage.getItem(clickEffectThresholdKey)) || pickClickEffectThreshold();
+let galleryClickEffectCount = 0;
+let galleryClickEffectThreshold = pickGalleryClickEffectThreshold();
 let lastPointerX = window.innerWidth / 2;
 let lastPointerY = window.innerHeight / 2;
 
@@ -23,6 +25,22 @@ function shouldDisableClickEffects() {
 
 function pickClickEffectThreshold() {
   return Math.floor(Math.random() * 20) + 1;
+}
+
+function pickGalleryClickEffectThreshold() {
+  return Math.floor(Math.random() * 8) + 3;
+}
+
+function countGalleryClickEffect(x, y) {
+  galleryClickEffectCount += 1;
+
+  if (galleryClickEffectCount < galleryClickEffectThreshold) {
+    return;
+  }
+
+  galleryClickEffectCount = 0;
+  galleryClickEffectThreshold = pickGalleryClickEffectThreshold();
+  playClickEffect(x, y);
 }
 
 function countClickEffectInteraction(x, y) {
@@ -155,7 +173,7 @@ document.addEventListener("pointerdown", (event) => {
   if (
     event.button !== 0 ||
     event.target.closest(
-      "form button, .game-sound-toggle, input, select, textarea, label, summary, iframe"
+      "a[href], button, input, select, textarea, label, summary, iframe"
     )
   ) {
     return;
@@ -163,6 +181,16 @@ document.addEventListener("pointerdown", (event) => {
 
   lastPointerX = event.clientX;
   lastPointerY = event.clientY;
+
+  if (
+    event.target.closest(
+      ".single-gallery-figure img, .single-gallery-figure video, .fullscreen-gallery img, .fullscreen-gallery video"
+    )
+  ) {
+    countGalleryClickEffect(lastPointerX, lastPointerY);
+    return;
+  }
+
   countClickEffectInteraction(lastPointerX, lastPointerY);
 });
 

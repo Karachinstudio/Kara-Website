@@ -65,6 +65,7 @@
     }
 
     #cursor {
+      display: none;
       position: fixed;
       width: 42px;
       height: 42px;
@@ -87,13 +88,13 @@
       inset: 0;
       z-index: 30;
       display: grid;
-      place-items: center;
+      place-items: start center;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 13px;
       font-weight: bold;
       color: #ef7777;
-      background: #ffd6e8;
-      padding: 24px;
+      background: #eee0e6;
+      padding: 36px 24px 24px;
       text-align: center;
       transition: opacity 180ms ease, visibility 180ms ease;
     }
@@ -103,6 +104,50 @@
       visibility: hidden;
       pointer-events: none;
     }
+
+    #startPrompt {
+      position: fixed;
+      inset: 0;
+      z-index: 18;
+      display: none;
+      justify-items: center;
+      align-items: start;
+      padding: 24px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      text-align: center;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    #startPrompt.is-visible {
+      display: grid;
+    }
+
+    #startPrompt span {
+      display: block;
+      margin-top: 12px;
+      animation: start-prompt-flash 1.5s ease-in-out infinite;
+    }
+
+    @keyframes start-prompt-flash {
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.35;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #startPrompt span {
+        animation: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -110,6 +155,7 @@
   <audio id="bgmusic" src="music.mp3" loop preload="none"></audio>
   <div id="flash"></div>
   <div id="overlayLayer"></div>
+  <div id="startPrompt" aria-hidden="true"><span>Click to play</span></div>
   <div id="cursor"></div>
   <div id="loadingScreen" role="status" aria-live="polite">loading...</div>
 
@@ -118,6 +164,7 @@
     const bgmusic = document.getElementById("bgmusic");
     const flash = document.getElementById("flash");
     const overlayLayer = document.getElementById("overlayLayer");
+    const startPrompt = document.getElementById("startPrompt");
     const cursor = document.getElementById("cursor");
     const loadingScreen = document.getElementById("loadingScreen");
 
@@ -169,6 +216,7 @@
     let slowLoadingTimeout = null;
     let idleVideoReady = false;
     let gameAssetsReady = false;
+    let isAwaitingStart = false;
     const preloadedMedia = [];
 
     video.disablePictureInPicture = true;
@@ -228,6 +276,38 @@
       window.parent.postMessage({ type: "gameReady" }, "*");
     }
 
+    function showStartPrompt() {
+      if (isMobilePlayback()) {
+        return;
+      }
+
+      isAwaitingStart = true;
+      video.pause();
+      video.currentTime = 0;
+      startPrompt.classList.add("is-visible");
+      startPrompt.setAttribute("aria-hidden", "false");
+    }
+
+    function beginGame(x, y) {
+      if (!isAwaitingStart) {
+        return false;
+      }
+
+      isAwaitingStart = false;
+      startPrompt.classList.remove("is-visible");
+      startPrompt.setAttribute("aria-hidden", "true");
+      video.play().catch((error) => {
+        console.log("Idle play failed:", error);
+      });
+      startBackgroundMusic();
+
+      if (Number.isFinite(x) && Number.isFinite(y)) {
+        playIdleClickOverlay(x, y);
+      }
+
+      return true;
+    }
+
     function showLoadingMessage(message) {
       if (!hasHiddenLoadingScreen) {
         loadingScreen.textContent = message;
@@ -236,6 +316,7 @@
 
     function finishLoadingWhenReady() {
       if (idleVideoReady && gameAssetsReady) {
+        showStartPrompt();
         hideLoadingScreen();
       }
     }
@@ -618,6 +699,7 @@
 
     document.addEventListener("click", async (event) => {
       if (Date.now() < ignoreClickUntil) return;
+      if (beginGame(event.clientX, event.clientY)) return;
       await handleMouseClick(event.clientX, event.clientY);
       await maybeTriggerKeyboardAction();
     });
@@ -625,11 +707,13 @@
     document.addEventListener("contextmenu", async (event) => {
       event.preventDefault();
       if (Date.now() < ignoreClickUntil) return;
+      if (beginGame()) return;
       await handleMouseClick(event.clientX, event.clientY);
       await maybeTriggerKeyboardAction();
     });
 
     document.addEventListener("keydown", async () => {
+      if (beginGame()) return;
       await handleMouseClick(cursorX, cursorY);
       await maybeTriggerKeyboardAction();
     });
@@ -651,6 +735,14 @@
       cursor.style.display = "block";
       cursor.style.left = cursorX + "px";
       cursor.style.top = cursorY + "px";
+    });
+
+    document.addEventListener("mouseleave", () => {
+      cursor.style.display = "none";
+    });
+
+    window.addEventListener("blur", () => {
+      cursor.style.display = "none";
     });
 
     window.addEventListener("message", (event) => {
