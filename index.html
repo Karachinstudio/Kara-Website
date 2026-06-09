@@ -61,8 +61,26 @@
     const gameSoundToggle = document.querySelector(".game-sound-toggle");
     const desktopGameSrc = "ginger-cat-dance-web/index.html";
     const mobileGameSrc = "ginger-cat-dance-web/Mobile/mobile.html";
-    let gameMusicOn = true;
+    const gameMusicStorageKey = "gingerCatGameMusicOn";
+    let gameMusicOn = readGameMusicPreference();
     let soundAttentionTimeout = null;
+
+    function readGameMusicPreference() {
+      try {
+        const savedPreference = sessionStorage.getItem(gameMusicStorageKey);
+        return savedPreference === null ? true : savedPreference === "true";
+      } catch (error) {
+        return true;
+      }
+    }
+
+    function saveGameMusicPreference() {
+      try {
+        sessionStorage.setItem(gameMusicStorageKey, String(gameMusicOn));
+      } catch (error) {
+        // Storage can be unavailable when the site is opened as a local file.
+      }
+    }
 
     function shouldUseMobileGame() {
       return window.matchMedia("(pointer: coarse)").matches;
@@ -107,6 +125,7 @@
       clearTimeout(soundAttentionTimeout);
       gameSoundToggle.classList.remove("is-attention");
       gameMusicOn = !gameMusicOn;
+      saveGameMusicPreference();
       updateGameSound();
 
       if (gameFrame.contentWindow) {
