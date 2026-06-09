@@ -949,6 +949,21 @@ img.image-load-error {
     touch-action: pan-y;
   }
 
+  .single-gallery-figure.is-media-loading,
+  .fullscreen-gallery.is-media-loading {
+    background: #e3e3e3;
+  }
+
+  .single-gallery-figure .is-media-loading,
+  .fullscreen-gallery .is-media-loading {
+    opacity: 0 !important;
+  }
+
+  .mapping-page .single-gallery-figure.is-media-loading,
+  .mapping-page .fullscreen-gallery.is-media-loading {
+    background: #303030;
+  }
+
   .single-gallery-figure.is-loading {
     min-height: 0;
   }

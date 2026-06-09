@@ -17,7 +17,10 @@
     dot.type = "button";
     dot.className = "gallery-dot";
     dot.setAttribute("aria-label", `Show image ${index + 1}`);
-    dot.addEventListener("click", () => showGalleryImage(index));
+    dot.addEventListener("click", () => {
+      beginMediaLoad(figure, visibleMedia());
+      showGalleryImage(index);
+    });
     dots.append(dot);
   });
 
@@ -76,6 +79,44 @@
     media.style.opacity = "";
   }
 
+  function beginMediaLoad(container, media) {
+    container.classList.add("is-media-loading");
+    media?.classList.add("is-media-loading");
+  }
+
+  function finishMediaLoad(container, media) {
+    container.classList.remove("is-media-loading");
+    media?.classList.remove("is-media-loading");
+  }
+
+  function watchMediaLoading(container) {
+    const mediaItems = container.querySelectorAll("img, video");
+
+    mediaItems.forEach((media) => {
+      const loadedEvent = media.tagName === "VIDEO" ? "loadeddata" : "load";
+      media.addEventListener(loadedEvent, () => finishMediaLoad(container, media));
+      media.addEventListener("error", () => finishMediaLoad(container, media));
+    });
+
+    new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        const media = mutation.target;
+
+        if (mutation.attributeName !== "src" || media.hidden) return;
+
+        beginMediaLoad(container, media);
+
+        if (media.tagName === "IMG" && media.complete && media.naturalWidth) {
+          window.requestAnimationFrame(() => finishMediaLoad(container, media));
+        }
+      });
+    }).observe(container, {
+      attributes: true,
+      attributeFilter: ["src"],
+      subtree: true
+    });
+  }
+
   function finishSwipe(direction) {
     const outgoing = visibleMedia();
     const distance = figure.clientWidth || window.innerWidth;
@@ -88,6 +129,7 @@
     outgoing.style.opacity = "0.65";
 
     window.setTimeout(() => {
+      beginMediaLoad(figure, outgoing);
       showGalleryImage(currentIndex() + direction);
       const incoming = visibleMedia();
 
@@ -123,6 +165,7 @@
     outgoing.style.opacity = "0.65";
 
     window.setTimeout(() => {
+      beginMediaLoad(fullscreen, outgoing);
       showGalleryImage(currentIndex() + direction);
       const incoming = visibleFullscreenMedia();
 
@@ -331,5 +374,7 @@
     subtree: true
   });
 
+  watchMediaLoading(figure);
+  watchMediaLoading(fullscreen);
   updateDots();
 })();
