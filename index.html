@@ -115,11 +115,6 @@
     });
 
     gameFrame.addEventListener("load", updateGameSound);
-    document.addEventListener("pointerdown", () => {
-      if (gameMusicOn && gameFrame.contentWindow) {
-        gameFrame.contentWindow.setGameMusicEnabled?.(true);
-      }
-    }, { once: true });
     window.addEventListener("message", (event) => {
       if (event.source === gameFrame.contentWindow && event.data?.type === "gameReady") {
         gameSoundToggle.classList.add("is-ready");
