@@ -118,6 +118,38 @@ a:hover {
   scrollbar-color: var(--scrollbar-lilac) transparent;
 }
 
+.work-index-page .image-feed {
+  animation: work-menu-slide-in 500ms ease-out both;
+}
+
+.work-index-page.is-leaving-work .image-feed {
+  animation: work-menu-slide-out 400ms ease-in both;
+}
+
+@keyframes work-menu-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-100% - var(--page-padding)));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes work-menu-slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(calc(-100% - var(--page-padding)));
+  }
+}
+
 .image-feed::-webkit-scrollbar {
   width: 8px;
 }
@@ -153,7 +185,7 @@ a:hover {
   left: 0;
   aspect-ratio: 4 / 5.6;
   z-index: 0;
-  background: #ffd6e8;
+  background: #e6e6e6;
   pointer-events: none;
 }
 
@@ -486,7 +518,7 @@ a:hover {
 
 .single-gallery-figure.is-loading {
   min-height: min(62vh, 620px);
-  background: #ffd6e8;
+  background: #e6e6e6;
 }
 
 .single-gallery-figure.is-loading::before {
@@ -497,11 +529,11 @@ a:hover {
   display: grid;
   place-items: center;
   padding: 24px;
-  font-size: 0.82rem;
+  font-size: 0.68rem;
   font-weight: bold;
-  color: #111;
+  color: #777;
   text-align: center;
-  background: #ffd6e8;
+  background: #e6e6e6;
   pointer-events: none;
 }
 
@@ -941,6 +973,13 @@ a:hover {
   .fullscreen-close {
     top: 16px;
     right: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-index-page .image-feed,
+  .work-index-page.is-leaving-work .image-feed {
+    animation: none;
   }
 }
 

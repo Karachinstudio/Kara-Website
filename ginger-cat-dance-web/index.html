@@ -89,9 +89,9 @@
       display: grid;
       place-items: center;
       font-family: Arial, Helvetica, sans-serif;
-      font-size: 16px;
+      font-size: 13px;
       font-weight: bold;
-      color: #111;
+      color: #ef7777;
       background: #ffd6e8;
       padding: 24px;
       text-align: center;
@@ -613,7 +613,7 @@
       showLoadingMessage("You appear to be offline. The game needs an internet connection.");
     });
     slowLoadingTimeout = window.setTimeout(() => {
-      showLoadingMessage("Still loading - your connection may be slow.");
+      showLoadingMessage("slow connection");
     }, 6000);
 
     document.addEventListener("click", async (event) => {

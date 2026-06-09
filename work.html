@@ -34,6 +34,34 @@
     const imageFolder = window.WORK_IMAGE_FOLDER || "images/";
     const workList = window.WORK_LIST || [];
 
+    function animateFeedEntranceScroll() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      const startScrollTop = Math.min(
+        Math.max(imageFeed.scrollTop, 720),
+        imageFeed.scrollHeight - imageFeed.clientHeight
+      );
+      const targetScrollTop = 0;
+      const duration = 1200;
+      const startTime = performance.now();
+
+      imageFeed.scrollTop = startScrollTop;
+
+      function step(currentTime) {
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        imageFeed.scrollTop = startScrollTop + (targetScrollTop - startScrollTop) * easedProgress;
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
     function titleFromFile(file) {
       const filename = file.split("/").pop().replace(/\.[^.]+$/, "");
       const cleaned = filename
@@ -107,6 +135,37 @@
         if (!work.href) {
           event.preventDefault();
         }
+      });
+    });
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(animateFeedEntranceScroll);
+    });
+
+    document.querySelectorAll(".site-title, .site-nav a:not(.is-current)").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        if (
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        document.body.classList.add("is-leaving-work");
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          window.location.href = link.href;
+          return;
+        }
+
+        window.setTimeout(() => {
+          window.location.href = link.href;
+        }, 400);
       });
     });
   </script>
