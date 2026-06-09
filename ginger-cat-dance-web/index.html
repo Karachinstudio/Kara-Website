@@ -197,6 +197,7 @@
     const danceClickSize = 900;
     const dance4ClickSize = 680;
     const maxActiveOverlays = 3;
+    const gameStartedStorageKey = "gingerCatGameStarted";
 
     let state = "idle";
     let hasStartedAudio = false;
@@ -217,7 +218,24 @@
     let idleVideoReady = false;
     let gameAssetsReady = false;
     let isAwaitingStart = false;
+    let hasGameStarted = wasGamePreviouslyStarted();
     const preloadedMedia = [];
+
+    function wasGamePreviouslyStarted() {
+      try {
+        return sessionStorage.getItem(gameStartedStorageKey) === "true";
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function rememberGameStarted() {
+      try {
+        sessionStorage.setItem(gameStartedStorageKey, "true");
+      } catch (error) {
+        // Storage can be unavailable when the game is opened as a local file.
+      }
+    }
 
     video.disablePictureInPicture = true;
     video.disableRemotePlayback = true;
@@ -258,7 +276,7 @@
         return;
       }
 
-      if (musicEnabled) {
+      if (musicEnabled && hasGameStarted) {
         await startBackgroundMusic();
       } else {
         bgmusic.pause();
@@ -294,6 +312,8 @@
       }
 
       isAwaitingStart = false;
+      hasGameStarted = true;
+      rememberGameStarted();
       startPrompt.classList.remove("is-visible");
       startPrompt.setAttribute("aria-hidden", "true");
       video.play().catch((error) => {
@@ -316,8 +336,12 @@
 
     function finishLoadingWhenReady() {
       if (idleVideoReady && gameAssetsReady) {
-        showStartPrompt();
+        if (!hasGameStarted) {
+          showStartPrompt();
+        }
+
         hideLoadingScreen();
+        resumeGame();
       }
     }
 
@@ -410,7 +434,7 @@
     }
 
     async function startBackgroundMusic() {
-      if (isMobilePlayback() || !musicEnabled) {
+      if (isMobilePlayback() || !musicEnabled || !hasGameStarted || !hasHiddenLoadingScreen) {
         return;
       }
 
@@ -438,6 +462,17 @@
         console.log("Music play failed:", error);
         bgMusicStarted = false;
       }
+    }
+
+    function resumeGame() {
+      if (!hasGameStarted || isAwaitingStart) {
+        return;
+      }
+
+      video.play().catch((error) => {
+        console.log("Game resume failed:", error);
+      });
+      startBackgroundMusic();
     }
 
     function setNormalMusicEffect() {
@@ -754,9 +789,12 @@
         setMusicEnabled(Boolean(event.data.enabled));
       } else if (event.data.type === "triggerSoundButtonClick") {
         playIdleClickOverlay(window.innerWidth - 90, window.innerHeight - 90);
+      } else if (event.data.type === "resumeGame") {
+        resumeGame();
       }
     });
 
+    window.addEventListener("pageshow", resumeGame);
     window.setGameMusicEnabled = setMusicEnabled;
 
     preloadGameAssets();

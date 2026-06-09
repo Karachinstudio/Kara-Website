@@ -125,6 +125,13 @@
         }, 5000);
       }
     });
+    window.addEventListener("pageshow", () => {
+      updateGameSound();
+
+      if (gameFrame.contentWindow) {
+        gameFrame.contentWindow.postMessage({ type: "resumeGame" }, "*");
+      }
+    });
     window.addEventListener("resize", updateGameFrameSource);
     updateGameSound();
     updateGameFrameSource();
