@@ -37,7 +37,7 @@
     </section>
 
     <section>
-      <h2>Group Exhibitions</h2>
+      <h2>Selected Group Exhibitions</h2>
       <p>2026 <a href="work-pages/pity-petty.html">Pity Petty</a>, Hatch, Paris</p>
       <p>2026 1, 2, Glissade et Changement, Hatch, Paris</p>
       <p>2026 Break The Mould, Ikon Gallery, Birmingham UK</p>
@@ -72,7 +72,6 @@
       <p>2020 Scramble, Pineapple Black, Middlesbrough</p>
       <p>2020 The Potion Room, Subsidiary Projects, London</p>
       <p>2019 Online Presents, Skelf, digital</p>
-      <p>2019 Five Pound Poster Party, CBS Gallery, Liverpool.</p>
       <p>2019 Up is a Relative Concept: Launch of Fold(Lab), Fold, London</p>
       <p>2019 London Art Fair with IMT Gallery, Business Design Centre, London</p>
       <p>2019 Bloomberg New Contemporaries, South London Gallery, London</p>
@@ -82,12 +81,6 @@
       <p>2018 The Woon Foundation Painting and Sculpture Prize, Gallery North, Newcastle</p>
       <p>2018 Bloomberg New Contemporaries, Liverpool Biennial 2018, Liverpool</p>
       <p>2017 Carnival of the Animals and Danse Macabre, San Mei Gallery, London</p>
-      <p>2017 Chain by 15, Papa Bear, London</p>
-      <p>2017 Slade Print Fair, UCL, London</p>
-      <p>2016 Vault, UCL Art Museum, London</p>
-      <p>2016 Long Distance Song Effects, The Milton Gallery, London</p>
-      <p>2015 Les Etudiants, Salon, London</p>
-      <p>2015 Rose, Lemons, Okra or Goutweed, The Embassy Tea Gallery, London</p>
       <p>2013 Works on Paper Fair, Science Museum, London</p>
       <p>2013 National Open Art Competition, The Pallent House Gallery, London</p>
       <p>2013 National Open Art Competition, The Royal College of Art Galleries, London</p>
@@ -130,17 +123,26 @@
 
   <script src="copy-email.js"></script>
   <script>
-    document.querySelectorAll(".cv-page section p").forEach((entry) => {
-      const text = entry.firstChild;
-      const match = text?.textContent.match(/^(\d{4}(?:\s+-\s+\d{4})?)\s+/);
+    document.querySelectorAll(".cv-page section").forEach((section) => {
+      let previousYear = null;
 
-      if (!match) return;
+      section.querySelectorAll("p").forEach((entry) => {
+        const text = entry.firstChild;
+        const match = text?.textContent.match(/^(\d{4}(?:\s+-\s+\d{4})?)\s+/);
 
-      const year = document.createElement("span");
-      year.className = "cv-year";
-      year.textContent = match[1];
-      text.textContent = text.textContent.slice(match[0].length);
-      entry.prepend(year);
+        if (!match) return;
+
+        if (previousYear !== null && match[1] !== previousYear) {
+          entry.classList.add("cv-new-year");
+        }
+
+        const year = document.createElement("span");
+        year.className = "cv-year";
+        year.textContent = match[1];
+        text.textContent = text.textContent.slice(match[0].length);
+        entry.prepend(year);
+        previousYear = match[1];
+      });
     });
   </script>
 

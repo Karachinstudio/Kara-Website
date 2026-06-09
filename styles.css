@@ -417,6 +417,10 @@ a:hover {
   margin-right: 1.5rem;
 }
 
+.cv-page p.cv-new-year {
+  margin-top: 0.4rem;
+}
+
 .cv-page a {
   text-decoration: underline;
 }
