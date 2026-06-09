@@ -82,6 +82,7 @@
   function beginMediaLoad(container, media) {
     container.classList.add("is-media-loading");
     media?.classList.add("is-media-loading");
+    updatePlaceholderSize(container, media);
   }
 
   function finishMediaLoad(container, media) {
@@ -89,12 +90,38 @@
     media?.classList.remove("is-media-loading");
   }
 
+  function updatePlaceholderSize(container, media) {
+    if (!media) return;
+
+    const mediaRect = media.getBoundingClientRect();
+    const mediaWidth = media.tagName === "VIDEO" ? media.videoWidth : media.naturalWidth;
+    const mediaHeight = media.tagName === "VIDEO" ? media.videoHeight : media.naturalHeight;
+
+    if (!mediaWidth || !mediaHeight) {
+      if (mediaRect.width && mediaRect.height) {
+        container.style.setProperty("--loading-width", `${mediaRect.width}px`);
+        container.style.setProperty("--loading-height", `${mediaRect.height}px`);
+      }
+      return;
+    }
+
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    const scale = Math.min(containerWidth / mediaWidth, containerHeight / mediaHeight);
+
+    container.style.setProperty("--loading-width", `${mediaWidth * scale}px`);
+    container.style.setProperty("--loading-height", `${mediaHeight * scale}px`);
+  }
+
   function watchMediaLoading(container) {
     const mediaItems = container.querySelectorAll("img, video");
 
     mediaItems.forEach((media) => {
       const loadedEvent = media.tagName === "VIDEO" ? "loadeddata" : "load";
-      media.addEventListener(loadedEvent, () => finishMediaLoad(container, media));
+      media.addEventListener(loadedEvent, () => {
+        updatePlaceholderSize(container, media);
+        finishMediaLoad(container, media);
+      });
       media.addEventListener("error", () => finishMediaLoad(container, media));
     });
 

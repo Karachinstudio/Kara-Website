@@ -237,6 +237,7 @@ document.querySelectorAll("img").forEach((image) => {
 
 document.querySelectorAll(".single-gallery-figure").forEach((figure) => {
   const mediaItems = figure.querySelectorAll("img, video");
+  let loadingLabelTimer;
 
   function updateLoadingState(media) {
     if (media.hidden || !media.getAttribute("src")) {
@@ -248,18 +249,27 @@ document.querySelectorAll(".single-gallery-figure").forEach((figure) => {
       : media.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
 
     figure.classList.toggle("is-loading", !isReady);
+    window.clearTimeout(loadingLabelTimer);
+    figure.classList.remove("show-loading-label");
+
+    if (!isReady && !window.matchMedia("(max-width: 700px)").matches) {
+      loadingLabelTimer = window.setTimeout(() => {
+        if (figure.classList.contains("is-loading")) {
+          figure.classList.add("show-loading-label");
+        }
+      }, 2000);
+    }
+  }
+
+  function finishLoading() {
+    window.clearTimeout(loadingLabelTimer);
+    figure.classList.remove("is-loading", "show-loading-label");
   }
 
   mediaItems.forEach((media) => {
-    media.addEventListener("load", () => {
-      figure.classList.remove("is-loading");
-    });
-    media.addEventListener("loadeddata", () => {
-      figure.classList.remove("is-loading");
-    });
-    media.addEventListener("error", () => {
-      figure.classList.remove("is-loading");
-    });
+    media.addEventListener("load", finishLoading);
+    media.addEventListener("loadeddata", finishLoading);
+    media.addEventListener("error", finishLoading);
 
     new MutationObserver(() => {
       updateLoadingState(media);
