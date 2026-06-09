@@ -632,6 +632,10 @@ img.image-load-error {
   text-align: center;
 }
 
+.gallery-dots {
+  display: none;
+}
+
 .has-fullscreen-gallery {
   overflow: hidden;
 }
@@ -909,7 +913,43 @@ img.image-load-error {
   }
 
   .single-gallery-figure {
+    overflow: hidden;
     touch-action: pan-y;
+  }
+
+  .gallery-controls {
+    justify-self: center;
+  }
+
+  .gallery-button,
+  .fullscreen-button {
+    display: none;
+  }
+
+  .gallery-count {
+    min-width: 0;
+  }
+
+  .gallery-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 9px;
+  }
+
+  .gallery-dot {
+    width: 6px;
+    height: 6px;
+    border: 0;
+    border-radius: 50%;
+    padding: 0;
+    background: #c7c7c7;
+    cursor: var(--cursor-pointer);
+  }
+
+  .gallery-dot.is-active {
+    background: var(--text);
   }
 
   .single-gallery-figure.is-loading {
