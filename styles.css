@@ -827,7 +827,7 @@ a:hover {
 
   .home-page.uses-mobile-game .homepage-game-block {
     position: fixed;
-    top: 47dvh;
+    top: 43dvh;
     left: 50%;
     margin: 0;
     transform: translate(-50%, -50%);

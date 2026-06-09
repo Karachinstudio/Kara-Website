@@ -32,6 +32,10 @@ function pickGalleryClickEffectThreshold() {
 }
 
 function countGalleryClickEffect(x, y) {
+  if (shouldDisableClickEffects()) {
+    return;
+  }
+
   galleryClickEffectCount += 1;
 
   if (galleryClickEffectCount < galleryClickEffectThreshold) {
