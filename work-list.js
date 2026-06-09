@@ -25,18 +25,18 @@ window.WORK_LIST = [
     alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Liverpool Biennial at Berry Street: UK"
   },
   {
-    file: "Shh... The Film is Starting. Art Basel HK with LINSEED, Hong Kong 2024. Solo.jpg",
-    title: "Shh... The Film is Starting. Art Basel HK with LINSEED, Hong Kong",
-    href: "work-pages/shh-the-film-is-starting.html",
-    openOnClick: true,
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Shh... The Film is Starting. Art Basel HK with LINSEED, Hong Kong"
-  },
-  {
     file: "Concerned Dogs. Goldsmiths CCA, London  2023. Solo.jpg",
     title: "Concerned Dogs. Goldsmiths CCA, London",
     href: "work-pages/concerned-dogs.html",
     openOnClick: true,
     alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Concerned Dogs. Goldsmiths CCA, London: UK"
+  },
+  {
+    file: "Shh... The Film is Starting. Art Basel HK with LINSEED, Hong Kong 2024. Solo.jpg",
+    title: "Shh... The Film is Starting. Art Basel HK with LINSEED, Hong Kong",
+    href: "work-pages/shh-the-film-is-starting.html",
+    openOnClick: true,
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Shh... The Film is Starting. Art Basel HK with LINSEED, Hong Kong"
   },
   {
     file: "Showreel. Humber Street Gallery, Hull 2022. Solo.jpg",
