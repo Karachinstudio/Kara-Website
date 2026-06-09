@@ -391,7 +391,7 @@ a:hover {
 }
 
 .cv-page {
-  max-width: 780px;
+  max-width: 960px;
   padding-left: calc(var(--feed-width) + var(--feed-gap));
 }
 
@@ -410,6 +410,11 @@ a:hover {
   font-size: 0.9rem;
   margin: 0;
   line-height: 1.45;
+}
+
+.cv-year {
+  display: inline-block;
+  margin-right: 1.5rem;
 }
 
 .cv-page a {

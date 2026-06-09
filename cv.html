@@ -94,6 +94,12 @@
     </section>
 
     <section>
+      <h2>Public Collections</h2>
+      <p>2023 <a href="https://artscouncilcollection.org.uk/artwork/awakening-ceremony">The Arts Council Collection UK</a></p>
+      <p>2023 <a href="https://artcollection.dcms.gov.uk/artwork/19232/">The Government Art Collection UK</a></p>
+    </section>
+
+    <section>
       <h2>Awards</h2>
       <p>2018 The Duveen Travel Scholarship | UCL</p>
       <p>2018 The Woon Prize | The Woon Foundation</p>
@@ -123,6 +129,20 @@
   </footer>
 
   <script src="copy-email.js"></script>
+  <script>
+    document.querySelectorAll(".cv-page section p").forEach((entry) => {
+      const text = entry.firstChild;
+      const match = text?.textContent.match(/^(\d{4}(?:\s+-\s+\d{4})?)\s+/);
+
+      if (!match) return;
+
+      const year = document.createElement("span");
+      year.className = "cv-year";
+      year.textContent = match[1];
+      text.textContent = text.textContent.slice(match[0].length);
+      entry.prepend(year);
+    });
+  </script>
 
 </body>
 </html>
