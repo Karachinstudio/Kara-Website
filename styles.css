@@ -870,7 +870,15 @@ img.image-load-error {
 
   .cv-page h2,
   .cv-page p {
-    font-size: 0.78rem;
+    font-size: 0.68rem;
+  }
+
+  .cv-page p {
+    line-height: 1.35;
+  }
+
+  .cv-year {
+    margin-right: 0.8rem;
   }
 
   .image-feed {
