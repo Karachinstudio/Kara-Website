@@ -724,6 +724,10 @@ a:hover {
   background: var(--background);
 }
 
+.mapping-page .single-gallery-figure.is-loading::before {
+  color: #b8b8b8;
+}
+
 @keyframes mapping-page-fade {
   from {
     color: #111;
