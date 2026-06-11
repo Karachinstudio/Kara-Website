@@ -42,6 +42,17 @@
   let isFullscreenAnimating = false;
   let suppressFullscreenClick = false;
   let fullscreenTapTimer;
+  let fullscreenPinchActive = false;
+  let fullscreenPinchMedia = null;
+  let fullscreenPinchStartDistance = 0;
+  let fullscreenPinchStartX = 0;
+  let fullscreenPinchStartY = 0;
+  let fullscreenPinchBaseScale = 1;
+  let fullscreenPinchBaseX = 0;
+  let fullscreenPinchBaseY = 0;
+  let fullscreenPinchScale = 1;
+  let fullscreenPinchX = 0;
+  let fullscreenPinchY = 0;
 
   function visibleMedia() {
     return figure.querySelector("img:not([hidden]), video:not([hidden])");
@@ -77,6 +88,59 @@
     media.style.transition = "";
     media.style.transform = "";
     media.style.opacity = "";
+
+    if (media === fullscreenPinchMedia) {
+      resetFullscreenPinch();
+    }
+  }
+
+  function touchDistance(touches) {
+    return Math.hypot(
+      touches[0].clientX - touches[1].clientX,
+      touches[0].clientY - touches[1].clientY
+    );
+  }
+
+  function touchMidpoint(touches) {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2
+    };
+  }
+
+  function resetFullscreenPinch() {
+    fullscreenPinchActive = false;
+    fullscreenPinchMedia = null;
+    fullscreenPinchStartDistance = 0;
+    fullscreenPinchBaseScale = 1;
+    fullscreenPinchBaseX = 0;
+    fullscreenPinchBaseY = 0;
+    fullscreenPinchScale = 1;
+    fullscreenPinchX = 0;
+    fullscreenPinchY = 0;
+  }
+
+  function clampFullscreenPan(media, scale, x, y) {
+    if (scale <= 1) return { x: 0, y: 0 };
+
+    const maxX = Math.max(0, (media.offsetWidth * scale - fullscreen.clientWidth) / 2);
+    const maxY = Math.max(0, (media.offsetHeight * scale - fullscreen.clientHeight) / 2);
+
+    return {
+      x: Math.min(Math.max(x, -maxX), maxX),
+      y: Math.min(Math.max(y, -maxY), maxY)
+    };
+  }
+
+  function applyFullscreenPinch(media) {
+    if (fullscreenPinchScale <= 1) {
+      media.style.transform = "";
+      return;
+    }
+
+    media.style.transition = "none";
+    media.style.transform =
+      `translate3d(${fullscreenPinchX}px, ${fullscreenPinchY}px, 0) scale(${fullscreenPinchScale})`;
   }
 
   function beginMediaLoad(container, media) {
@@ -303,6 +367,34 @@
   }, { capture: true });
 
   fullscreen.addEventListener("touchstart", (event) => {
+    if (mobileQuery.matches && !isFullscreenAnimating && event.touches.length >= 2) {
+      const media = visibleFullscreenMedia();
+
+      if (!media || media.tagName !== "IMG" || event.target.closest("button")) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      clearTimeout(fullscreenTapTimer);
+      isFullscreenDragging = false;
+      isFullscreenHorizontal = false;
+      suppressFullscreenClick = true;
+
+      if (fullscreenPinchMedia !== media || !media.style.transform) {
+        resetFullscreenPinch();
+        fullscreenPinchMedia = media;
+      }
+
+      const midpoint = touchMidpoint(event.touches);
+      fullscreenPinchActive = true;
+      fullscreenPinchStartDistance = touchDistance(event.touches);
+      fullscreenPinchStartX = midpoint.x;
+      fullscreenPinchStartY = midpoint.y;
+      fullscreenPinchBaseScale = fullscreenPinchScale;
+      fullscreenPinchBaseX = fullscreenPinchX;
+      fullscreenPinchBaseY = fullscreenPinchY;
+      return;
+    }
+
     if (
       !mobileQuery.matches ||
       isFullscreenAnimating ||
@@ -318,9 +410,41 @@
     isFullscreenDragging = true;
     isFullscreenHorizontal = false;
     resetMedia(visibleFullscreenMedia());
-  }, { capture: true, passive: true });
+  }, { capture: true, passive: false });
 
   fullscreen.addEventListener("touchmove", (event) => {
+    if (fullscreenPinchActive) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (event.touches.length < 2 || !fullscreenPinchStartDistance) return;
+
+      const media = fullscreenPinchMedia;
+
+      if (!media) return;
+
+      const midpoint = touchMidpoint(event.touches);
+      fullscreenPinchScale = Math.min(
+        Math.max(
+          fullscreenPinchBaseScale *
+            (touchDistance(event.touches) / fullscreenPinchStartDistance),
+          1
+        ),
+        3
+      );
+
+      const pan = clampFullscreenPan(
+        media,
+        fullscreenPinchScale,
+        fullscreenPinchBaseX + midpoint.x - fullscreenPinchStartX,
+        fullscreenPinchBaseY + midpoint.y - fullscreenPinchStartY
+      );
+      fullscreenPinchX = pan.x;
+      fullscreenPinchY = pan.y;
+      applyFullscreenPinch(media);
+      return;
+    }
+
     if (!mobileQuery.matches || !isFullscreenDragging || event.touches.length !== 1) return;
 
     fullscreenDeltaX = event.touches[0].clientX - fullscreenStartX;
@@ -343,6 +467,33 @@
   }, { capture: true, passive: false });
 
   fullscreen.addEventListener("touchend", (event) => {
+    if (fullscreenPinchActive) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (event.touches.length >= 2) {
+        const midpoint = touchMidpoint(event.touches);
+        fullscreenPinchStartDistance = touchDistance(event.touches);
+        fullscreenPinchStartX = midpoint.x;
+        fullscreenPinchStartY = midpoint.y;
+        fullscreenPinchBaseScale = fullscreenPinchScale;
+        fullscreenPinchBaseX = fullscreenPinchX;
+        fullscreenPinchBaseY = fullscreenPinchY;
+        return;
+      }
+
+      if (event.touches.length === 1) {
+        fullscreenPinchStartDistance = 0;
+        return;
+      }
+
+      fullscreenPinchActive = false;
+      window.setTimeout(() => {
+        suppressFullscreenClick = false;
+      }, 350);
+      return;
+    }
+
     if (!mobileQuery.matches || !isFullscreenDragging) return;
 
     isFullscreenDragging = false;
@@ -369,10 +520,28 @@
     }
   }, { capture: true, passive: false });
 
-  fullscreen.addEventListener("touchcancel", () => {
+  fullscreen.addEventListener("touchcancel", (event) => {
+    const wasFullscreenPinching = fullscreenPinchActive;
+
+    if (fullscreenPinchActive) {
+      event.stopImmediatePropagation();
+
+      if (event.touches.length) {
+        return;
+      }
+
+      fullscreenPinchActive = false;
+      window.setTimeout(() => {
+        suppressFullscreenClick = false;
+      }, 350);
+    }
+
     isFullscreenDragging = false;
     isFullscreenHorizontal = false;
-    resetMedia(visibleFullscreenMedia());
+
+    if (!wasFullscreenPinching) {
+      resetMedia(visibleFullscreenMedia());
+    }
   }, { capture: true, passive: true });
 
   fullscreen.addEventListener("click", (event) => {
