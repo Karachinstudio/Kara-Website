@@ -93,7 +93,7 @@
       font-size: 13px;
       font-weight: bold;
       color: #ef7777;
-      background: #eee0e6;
+      background: #000 url("../place-holder.jpeg") center / cover no-repeat;
       padding: 18px;
       text-align: center;
       transition: opacity 180ms ease, visibility 180ms ease;
@@ -552,13 +552,13 @@
     video.addEventListener("canplay", markIdleVideoReady, { once: true });
     video.addEventListener("playing", markIdleVideoReady, { once: true });
     video.addEventListener("error", () => {
-      showLoadingMessage("The game could not load. Please refresh and try again.");
+      showLoadingMessage("loading failed boooo");
     }, { once: true });
     window.addEventListener("offline", () => {
-      showLoadingMessage("You appear to be offline. The game needs an internet connection.");
+      showLoadingMessage("the internets broken");
     });
     slowLoadingTimeout = window.setTimeout(() => {
-      showLoadingMessage("slow connection");
+      showLoadingMessage("slow internet :(");
     }, 6000);
 
     document.addEventListener("click", async (event) => {
