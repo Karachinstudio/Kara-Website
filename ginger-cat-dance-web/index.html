@@ -105,6 +105,32 @@
       pointer-events: none;
     }
 
+    .loadingCopy {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+    }
+
+    .loadingDots {
+      display: inline-block;
+      width: 0;
+      overflow: hidden;
+      vertical-align: bottom;
+      white-space: nowrap;
+      animation: loading-dots 1.2s steps(4, end) infinite;
+    }
+
+    #loadingLabel[hidden],
+    #loadingMessage:empty {
+      display: none;
+    }
+
+    @keyframes loading-dots {
+      to {
+        width: 1.5em;
+      }
+    }
+
     #startPrompt {
       position: fixed;
       inset: 0;
@@ -147,6 +173,11 @@
       #startPrompt span {
         animation: none;
       }
+
+      .loadingDots {
+        width: 1.5em;
+        animation: none;
+      }
     }
   </style>
 </head>
@@ -157,7 +188,12 @@
   <div id="overlayLayer"></div>
   <div id="startPrompt" aria-hidden="true"><span>Click to play</span></div>
   <div id="cursor"></div>
-  <div id="loadingScreen" role="status" aria-live="polite">loading...</div>
+  <div id="loadingScreen" role="status" aria-live="polite">
+    <div class="loadingCopy">
+      <span id="loadingLabel">loading<span class="loadingDots" aria-hidden="true">...</span></span>
+      <span id="loadingMessage"></span>
+    </div>
+  </div>
 
   <script>
     const video = document.getElementById("video");
@@ -167,6 +203,8 @@
     const startPrompt = document.getElementById("startPrompt");
     const cursor = document.getElementById("cursor");
     const loadingScreen = document.getElementById("loadingScreen");
+    const loadingLabel = document.getElementById("loadingLabel");
+    const loadingMessage = document.getElementById("loadingMessage");
 
     const idleSrc = "Mobile/idle.mp4";
     const dances = [
@@ -328,9 +366,10 @@
       return true;
     }
 
-    function showLoadingMessage(message) {
+    function showLoadingMessage(message, keepLoading = false) {
       if (!hasHiddenLoadingScreen) {
-        loadingScreen.textContent = message;
+        loadingLabel.hidden = !keepLoading;
+        loadingMessage.textContent = message;
       }
     }
 
@@ -729,7 +768,7 @@
       showLoadingMessage("the internets broken");
     });
     slowLoadingTimeout = window.setTimeout(() => {
-      showLoadingMessage("slow internet :(");
+      showLoadingMessage("sloww internet :(", true);
     }, 6000);
 
     document.addEventListener("click", async (event) => {
