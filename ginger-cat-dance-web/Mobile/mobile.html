@@ -232,7 +232,80 @@
     let slowLoadingTimeout = null;
     let idleVideoReady = false;
     let gameAssetsReady = false;
+    let analyticsGameStarted = false;
+    let analyticsGameStartedAt = 0;
+    let analyticsInteractionCount = 0;
+    let analyticsDanceCount = 0;
+    let analyticsEngagementTimer = null;
+    const analyticsInteractionMilestones = new Set();
+    const analyticsTimeMilestones = new Set();
     const preloadedMedia = [];
+
+    function trackCatGameEvent(eventName, params = {}) {
+      if (typeof gtag !== "function") {
+        return;
+      }
+
+      gtag("event", eventName, {
+        event_category: "cat_game",
+        game_variant: "mobile",
+        ...params
+      });
+    }
+
+    function reportEngagementTime(force = false) {
+      if (!analyticsGameStartedAt) {
+        return;
+      }
+
+      const seconds = Math.round((Date.now() - analyticsGameStartedAt) / 1000);
+      const milestones = [15, 30, 60, 120, 300];
+
+      milestones.forEach((milestone) => {
+        if (seconds >= milestone && !analyticsTimeMilestones.has(milestone)) {
+          analyticsTimeMilestones.add(milestone);
+          trackCatGameEvent("cat_game_engagement_time", {
+            value: milestone,
+            engagement_seconds: milestone
+          });
+        }
+      });
+
+      if (force && seconds > 0) {
+        trackCatGameEvent("cat_game_engagement_time", {
+          value: seconds,
+          engagement_seconds: seconds,
+          final: true
+        });
+      }
+    }
+
+    function markCatGameStarted(inputType) {
+      if (analyticsGameStarted) {
+        return;
+      }
+
+      analyticsGameStarted = true;
+      analyticsGameStartedAt = Date.now();
+      trackCatGameEvent("cat_game_start", { input_type: inputType });
+      analyticsEngagementTimer = window.setInterval(reportEngagementTime, 5000);
+    }
+
+    function trackCatGameInteraction(inputType) {
+      markCatGameStarted(inputType);
+      analyticsInteractionCount += 1;
+
+      [1, 5, 10, 25, 50, 100].forEach((milestone) => {
+        if (analyticsInteractionCount >= milestone && !analyticsInteractionMilestones.has(milestone)) {
+          analyticsInteractionMilestones.add(milestone);
+          trackCatGameEvent("cat_game_interaction_milestone", {
+            value: milestone,
+            interaction_count: milestone,
+            input_type: inputType
+          });
+        }
+      });
+    }
 
     video.disablePictureInPicture = true;
     video.disableRemotePlayback = true;
@@ -265,6 +338,7 @@
       clearTimeout(slowLoadingTimeout);
       loadingScreen.classList.add("is-hidden");
       window.parent.postMessage({ type: "gameReady" }, "*");
+      trackCatGameEvent("cat_game_ready");
     }
 
     function showLoadingMessage(message, keepLoading = false) {
@@ -449,6 +523,11 @@
 
       const chosenDance = pickRandomDance();
       currentDance = chosenDance;
+      analyticsDanceCount += 1;
+      trackCatGameEvent("cat_game_dance_start", {
+        dance_name: chosenDance,
+        dance_count: analyticsDanceCount
+      });
       updateMusicEffectForCurrentState();
 
       video.src = chosenDance;
@@ -590,6 +669,10 @@
 
     video.addEventListener("ended", () => {
       if (state === "dance") {
+        trackCatGameEvent("cat_game_dance_complete", {
+          dance_name: currentDance,
+          dance_count: analyticsDanceCount
+        });
         playIdle();
       }
     });
@@ -613,16 +696,19 @@
 
     document.addEventListener("click", async (event) => {
       if (Date.now() < ignoreClickUntil) return;
+      trackCatGameInteraction("click");
       await handleMouseClick(event.clientX, event.clientY);
     });
 
     document.addEventListener("contextmenu", async (event) => {
       event.preventDefault();
       if (Date.now() < ignoreClickUntil) return;
+      trackCatGameInteraction("contextmenu");
       await handleMouseClick(event.clientX, event.clientY);
     });
 
     document.addEventListener("keydown", async () => {
+      trackCatGameInteraction("keyboard");
       await handleMouseClick(cursorX, cursorY);
     });
 
@@ -633,6 +719,7 @@
       const touch = event.touches[0];
 
       if (touch) {
+        trackCatGameInteraction("touch");
         await handleTouch(touch.clientX, touch.clientY);
       }
     }, { passive: false });
@@ -653,12 +740,21 @@
       if (event.data.type === "setMusic") {
         setMusicEnabled(Boolean(event.data.enabled));
       } else if (event.data.type === "triggerSoundButtonClick") {
+        trackCatGameInteraction("sound_button");
         playIdleClickOverlay(window.innerWidth - 70, window.innerHeight - 70);
         playRandomClickSound();
       }
     });
 
     window.setGameMusicEnabled = setMusicEnabled;
+
+    window.addEventListener("pagehide", () => {
+      reportEngagementTime(true);
+
+      if (analyticsEngagementTimer) {
+        window.clearInterval(analyticsEngagementTimer);
+      }
+    });
 
     preloadGameAssets();
     playIdle();
