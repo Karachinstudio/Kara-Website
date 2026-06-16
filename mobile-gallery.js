@@ -53,6 +53,11 @@
   let fullscreenPinchScale = 1;
   let fullscreenPinchX = 0;
   let fullscreenPinchY = 0;
+  let fullscreenPanActive = false;
+  let fullscreenPanStartX = 0;
+  let fullscreenPanStartY = 0;
+  let fullscreenPanBaseX = 0;
+  let fullscreenPanBaseY = 0;
 
   function visibleMedia() {
     return figure.querySelector("img:not([hidden]), video:not([hidden])");
@@ -118,6 +123,11 @@
     fullscreenPinchScale = 1;
     fullscreenPinchX = 0;
     fullscreenPinchY = 0;
+    fullscreenPanActive = false;
+  }
+
+  function isFullscreenZoomed() {
+    return fullscreenPinchScale > 1.01;
   }
 
   function clampFullscreenPan(media, scale, x, y) {
@@ -133,7 +143,10 @@
   }
 
   function applyFullscreenPinch(media) {
-    if (fullscreenPinchScale <= 1) {
+    if (fullscreenPinchScale <= 1.01) {
+      fullscreenPinchScale = 1;
+      fullscreenPinchX = 0;
+      fullscreenPinchY = 0;
       media.style.transform = "";
       return;
     }
@@ -386,12 +399,39 @@
 
       const midpoint = touchMidpoint(event.touches);
       fullscreenPinchActive = true;
+      fullscreenPanActive = false;
       fullscreenPinchStartDistance = touchDistance(event.touches);
       fullscreenPinchStartX = midpoint.x;
       fullscreenPinchStartY = midpoint.y;
       fullscreenPinchBaseScale = fullscreenPinchScale;
       fullscreenPinchBaseX = fullscreenPinchX;
       fullscreenPinchBaseY = fullscreenPinchY;
+      return;
+    }
+
+    if (
+      mobileQuery.matches &&
+      !isFullscreenAnimating &&
+      event.touches.length === 1 &&
+      isFullscreenZoomed() &&
+      !event.target.closest("button")
+    ) {
+      const media = visibleFullscreenMedia();
+
+      if (!media || media !== fullscreenPinchMedia) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      clearTimeout(fullscreenTapTimer);
+      fullscreenPinchActive = false;
+      fullscreenPanActive = true;
+      isFullscreenDragging = false;
+      isFullscreenHorizontal = false;
+      suppressFullscreenClick = true;
+      fullscreenPanStartX = event.touches[0].clientX;
+      fullscreenPanStartY = event.touches[0].clientY;
+      fullscreenPanBaseX = fullscreenPinchX;
+      fullscreenPanBaseY = fullscreenPinchY;
       return;
     }
 
@@ -430,7 +470,7 @@
             (touchDistance(event.touches) / fullscreenPinchStartDistance),
           1
         ),
-        3
+        5
       );
 
       const pan = clampFullscreenPan(
@@ -438,6 +478,28 @@
         fullscreenPinchScale,
         fullscreenPinchBaseX + midpoint.x - fullscreenPinchStartX,
         fullscreenPinchBaseY + midpoint.y - fullscreenPinchStartY
+      );
+      fullscreenPinchX = pan.x;
+      fullscreenPinchY = pan.y;
+      applyFullscreenPinch(media);
+      return;
+    }
+
+    if (fullscreenPanActive) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (event.touches.length !== 1) return;
+
+      const media = fullscreenPinchMedia;
+
+      if (!media) return;
+
+      const pan = clampFullscreenPan(
+        media,
+        fullscreenPinchScale,
+        fullscreenPanBaseX + event.touches[0].clientX - fullscreenPanStartX,
+        fullscreenPanBaseY + event.touches[0].clientY - fullscreenPanStartY
       );
       fullscreenPinchX = pan.x;
       fullscreenPinchY = pan.y;
@@ -482,12 +544,43 @@
         return;
       }
 
+      if (event.touches.length === 1 && isFullscreenZoomed()) {
+        fullscreenPinchActive = false;
+        fullscreenPanActive = true;
+        fullscreenPanStartX = event.touches[0].clientX;
+        fullscreenPanStartY = event.touches[0].clientY;
+        fullscreenPanBaseX = fullscreenPinchX;
+        fullscreenPanBaseY = fullscreenPinchY;
+        fullscreenPinchStartDistance = 0;
+        return;
+      }
+
       if (event.touches.length === 1) {
         fullscreenPinchStartDistance = 0;
         return;
       }
 
       fullscreenPinchActive = false;
+      fullscreenPanActive = false;
+      window.setTimeout(() => {
+        suppressFullscreenClick = false;
+      }, 350);
+      return;
+    }
+
+    if (fullscreenPanActive) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (event.touches.length === 1) {
+        fullscreenPanStartX = event.touches[0].clientX;
+        fullscreenPanStartY = event.touches[0].clientY;
+        fullscreenPanBaseX = fullscreenPinchX;
+        fullscreenPanBaseY = fullscreenPinchY;
+        return;
+      }
+
+      fullscreenPanActive = false;
       window.setTimeout(() => {
         suppressFullscreenClick = false;
       }, 350);
@@ -531,6 +624,14 @@
       }
 
       fullscreenPinchActive = false;
+      window.setTimeout(() => {
+        suppressFullscreenClick = false;
+      }, 350);
+    }
+
+    if (fullscreenPanActive) {
+      event.stopImmediatePropagation();
+      fullscreenPanActive = false;
       window.setTimeout(() => {
         suppressFullscreenClick = false;
       }, 350);
