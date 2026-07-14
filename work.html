@@ -22,7 +22,7 @@
     <a class="site-title" href="index.html">Kara Chin</a>
 
     <nav class="site-nav" aria-label="Main navigation">
-      <a class="is-current" href="work.html">Work</a>
+      <a class="is-current" href="work.html?feed=top&open=first">Work</a>
       <a href="cv.html">CV</a>
     </nav>
   </header>
@@ -147,9 +147,26 @@
       });
     });
 
+    function openFirstWorkAfterMenuLoads() {
+      const params = new URLSearchParams(window.location.search);
+      const shouldOpenFirstWork = params.get("open") === "first";
+      const isDesktop = window.matchMedia("(min-width: 701px)").matches;
+      const firstWork = works.find((work) => work.href);
+
+      if (!shouldOpenFirstWork || !isDesktop || !firstWork) {
+        return;
+      }
+
+      window.setTimeout(() => {
+        window.location.href = firstWork.href;
+      }, 1000);
+    }
+
     requestAnimationFrame(() => {
       requestAnimationFrame(animateFeedEntranceScroll);
     });
+
+    openFirstWorkAfterMenuLoads();
 
     document.querySelectorAll(".site-title, .site-nav a:not(.is-current)").forEach((link) => {
       link.addEventListener("click", (event) => {

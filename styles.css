@@ -206,6 +206,7 @@ a:hover {
   transition: background 160ms ease;
 }
 
+.feed-item a.is-active::after,
 .feed-item a:hover::after,
 .feed-item a:focus-visible::after {
   background: rgba(255, 255, 255, 0.42);
