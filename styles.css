@@ -808,6 +808,7 @@ img.image-load-error {
     --page-padding: 16px;
     --feed-width: 190px;
     --feed-gap: 16px;
+    --scrollbar-lilac: #9f7fce;
   }
 
   .site-header {
@@ -911,7 +912,16 @@ img.image-load-error {
 
   .image-feed {
     top: 72px;
-    padding-right: 6px;
+    padding-right: 10px;
+    scrollbar-width: auto;
+  }
+
+  .image-feed::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .image-feed::-webkit-scrollbar-thumb {
+    border: 2px solid var(--background);
   }
 
   .feed-item + .feed-item {
@@ -919,7 +929,16 @@ img.image-load-error {
   }
 
   .feed-item span {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    max-width: calc(100% - 12px);
+    margin-top: 0;
+    padding: 3px 5px;
+    background: rgba(255, 255, 255, 0.74);
     font-size: 0.74rem;
+    line-height: 1.1;
+    text-align: right;
   }
 
   .detail-header {
