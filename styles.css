@@ -118,6 +118,18 @@ a:hover {
   scrollbar-color: var(--scrollbar-lilac) transparent;
 }
 
+@media (min-width: 701px) {
+  .project-page .image-feed {
+    transition: transform 400ms ease, opacity 400ms ease;
+  }
+
+  .project-page.is-work-menu-closed .image-feed {
+    opacity: 0;
+    transform: translateX(calc(-100% - var(--page-padding)));
+    pointer-events: none;
+  }
+}
+
 .work-index-page .image-feed {
   animation: work-menu-slide-in 500ms ease-out both;
 }
@@ -151,7 +163,7 @@ a:hover {
 }
 
 .image-feed::-webkit-scrollbar {
-  width: 8px;
+  width: 14px;
 }
 
 .image-feed::-webkit-scrollbar-track {
@@ -917,7 +929,7 @@ img.image-load-error {
   }
 
   .image-feed::-webkit-scrollbar {
-    width: 12px;
+    width: 16px;
   }
 
   .image-feed::-webkit-scrollbar-thumb {
@@ -929,16 +941,16 @@ img.image-load-error {
   }
 
   .feed-item span {
-    position: absolute;
-    right: 6px;
-    bottom: 6px;
-    max-width: calc(100% - 12px);
-    margin-top: 0;
-    padding: 3px 5px;
-    background: rgba(255, 255, 255, 0.74);
+    position: relative;
+    right: auto;
+    bottom: auto;
+    max-width: none;
+    margin-top: 6px;
+    padding: 0;
+    background: transparent;
     font-size: 0.74rem;
     line-height: 1.1;
-    text-align: right;
+    text-align: left;
   }
 
   .detail-header {
