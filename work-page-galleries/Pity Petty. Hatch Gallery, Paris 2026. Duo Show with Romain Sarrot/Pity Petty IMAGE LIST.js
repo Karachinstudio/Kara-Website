@@ -77,29 +77,5 @@ window.IMAGE_LIST = [
     title: "The Nhilistic Penguin Water Font",
     info: "29 x 39.5 x 17 cm. Glazed stoneware ceramic and pet bowls. Photography by Pauline Assathiany.",
     alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: The Nhilistic Penguin Water Font: 29 x 39.5 x 17 cm. Glazed stoneware ceramic and pet bowls: ceramic artwork"
-  },
-  {
-    file: "web/pity-petty-14.jpg",
-    title: "Flat Cat",
-    info: "32 x 33 x 2 cm. Glazed stoneware ceramic. Photography by Pauline Assathiany.",
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Flat Cat: 32 x 33 x 2 cm. Glazed stoneware ceramic: ceramic artwork"
-  },
-  {
-    file: "web/pity-petty-15.jpg",
-    title: "Flat Face",
-    info: "29 x 27 x 2 cm. Glazed stoneware ceramic. Photography by Pauline Assathiany.",
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Flat Face: 29 x 27 x 2 cm. Glazed stoneware ceramic: ceramic artwork"
-  },
-  {
-    file: "web/pity-petty-16.jpg",
-    title: "So You've Eaten Peanut",
-    info: "8 x 7.5 x 1 cm. Glazed stoneware ceramic. Photography by Pauline Assathiany.",
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: So You've Eaten Peanut: 8 x 7.5 x 1 cm. Glazed stoneware ceramic: ceramic artwork"
-  },
-  {
-    file: "web/pity-petty-17.jpg",
-    title: "So You've Eaten Peanut",
-    info: "8 x 7.5 x 1 cm. Glazed stoneware ceramic. Photography by Pauline Assathiany.",
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: So You've Eaten Peanut: 8 x 7.5 x 1 cm. Glazed stoneware ceramic: ceramic artwork"
   }
 ];

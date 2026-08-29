@@ -3,6 +3,9 @@
   const feed = document.querySelector(".image-feed");
   const params = new URLSearchParams(window.location.search);
   const shouldResetFeed = params.get("feed") === "top";
+  let isRestoring = !shouldResetFeed;
+  let restoreCancelled = false;
+  let restoreTimer = null;
 
   if (!feed) {
     return;
@@ -15,12 +18,21 @@
   }
 
   function saveFeedPosition() {
+    if (isRestoring) {
+      return;
+    }
+
     localStorage.setItem(storageKey, String(feed.scrollTop));
   }
 
   function restoreFeedPosition() {
+    if (restoreCancelled) {
+      return;
+    }
+
     if (shouldResetFeed) {
       feed.scrollTop = 0;
+      isRestoring = false;
       return;
     }
 
@@ -34,8 +46,38 @@
   restoreFeedPosition();
   requestAnimationFrame(restoreFeedPosition);
 
+  [50, 150, 300, 600, 1000, 1800, 3000].forEach((delay) => {
+    window.setTimeout(restoreFeedPosition, delay);
+  });
+
+  feed.querySelectorAll("img").forEach((image) => {
+    if (!image.complete) {
+      image.addEventListener("load", restoreFeedPosition, { once: true });
+    }
+  });
+
+  window.addEventListener("load", restoreFeedPosition, { once: true });
+  restoreTimer = window.setTimeout(() => {
+    restoreFeedPosition();
+    isRestoring = false;
+  }, 3200);
+
   feed.addEventListener("scroll", saveFeedPosition, { passive: true });
   feed.addEventListener("click", saveFeedPosition, true);
+
+  function cancelRestore() {
+    restoreCancelled = true;
+    isRestoring = false;
+  }
+
+  feed.addEventListener("wheel", cancelRestore, { passive: true });
+  feed.addEventListener("touchstart", cancelRestore, { passive: true });
+  feed.addEventListener("pointerdown", cancelRestore, { passive: true });
+  window.addEventListener("pagehide", () => {
+    clearTimeout(restoreTimer);
+    isRestoring = false;
+    saveFeedPosition();
+  });
 
   const workLink = document.querySelector(".site-nav a.is-current");
   const desktopQuery = window.matchMedia("(min-width: 901px)");
