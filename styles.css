@@ -901,10 +901,16 @@ img.image-load-error {
 
   .home-page .site-header,
   .cv-index-page .site-header {
-    flex-direction: row;
+    flex-direction: row-reverse;
     justify-content: space-between;
     gap: 20px;
     padding-left: 0;
+  }
+
+  .home-page.is-work-menu-open .on-now {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .home-page .site-nav,
