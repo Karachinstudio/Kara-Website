@@ -839,16 +839,24 @@ img.image-load-error {
 
   .home-page .on-now {
     display: block;
-    position: relative;
+    position: fixed;
+    top: 50%;
+    left: 50%;
     width: min(320px, calc(100vw - var(--page-padding) * 2));
     max-width: none;
-    margin: 40px auto 110px;
-    transform: none;
+    margin: 0;
+    transform: translate(-50%, -50%);
     text-align: center;
   }
 
+  .home-page .on-now a,
+  .home-page .site-footer a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   .homepage-game-block {
-    width: min(42vw, 210px);
+    display: none;
   }
 
   .homepage-game {
@@ -1137,9 +1145,9 @@ img.image-load-error {
   .home-page.uses-mobile-game .site-footer,
   .home-page:not(.uses-mobile-game) .site-footer {
     position: fixed;
-    top: var(--page-padding);
+    top: auto;
     right: var(--page-padding);
-    bottom: auto;
+    bottom: max(var(--page-padding), env(safe-area-inset-bottom));
     left: auto;
     margin: 0;
     font-size: 0.68rem;
