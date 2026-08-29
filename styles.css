@@ -138,6 +138,22 @@ a:hover {
   animation: work-menu-slide-out 400ms ease-in both;
 }
 
+.home-page .image-feed,
+.cv-index-page .image-feed {
+  z-index: 6;
+  opacity: 0;
+  transform: translateX(calc(-100% - var(--page-padding)));
+  pointer-events: none;
+  transition: transform 400ms ease, opacity 400ms ease;
+}
+
+.home-page.is-work-menu-open .image-feed,
+.cv-index-page.is-work-menu-open .image-feed {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
 @keyframes work-menu-slide-in {
   from {
     opacity: 0;
@@ -369,7 +385,26 @@ a:hover {
   display: block;
 }
 
+.on-now-preview {
+  display: none;
+}
+
 @media (min-width: 901px) {
+  .home-page,
+  .cv-index-page {
+    --home-content-shift: clamp(70px, 8vw, 140px);
+  }
+
+  .home-page .site-title,
+  .cv-index-page .site-title {
+    position: relative;
+    left: var(--home-content-shift);
+  }
+
+  .cv-index-page .cv-page {
+    padding-left: calc(var(--feed-width) + var(--feed-gap) + var(--home-content-shift));
+  }
+
   .home-page .home-layout {
     display: flex;
     position: fixed;
@@ -379,6 +414,7 @@ a:hover {
     align-items: flex-end;
     justify-content: space-between;
     max-width: none;
+    padding-left: calc(var(--feed-width) + var(--feed-gap) + var(--home-content-shift));
     transform: translateY(-50%);
   }
 
@@ -388,6 +424,25 @@ a:hover {
     top: auto;
     margin-right: 48px;
     transform: none;
+  }
+
+  .home-page .on-now-preview {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 14px);
+    width: 72%;
+    height: auto;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 160ms ease, visibility 160ms ease;
+  }
+
+  .home-page .on-now-link:hover .on-now-preview,
+  .home-page .on-now-link:focus-visible .on-now-preview {
+    opacity: 1;
+    visibility: visible;
   }
 }
 
@@ -835,6 +890,10 @@ img.image-load-error {
   .site-footer,
   .cv-page {
     padding-left: 0;
+  }
+
+  .cv-index-page .cv-page {
+    padding-left: calc(var(--feed-width) + var(--feed-gap));
   }
 
   .home-page .on-now {

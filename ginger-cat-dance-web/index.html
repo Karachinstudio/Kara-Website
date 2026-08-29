@@ -131,49 +131,7 @@
       }
     }
 
-    #startPrompt {
-      position: fixed;
-      inset: 0;
-      z-index: 18;
-      display: none;
-      justify-items: center;
-      align-items: start;
-      padding: 24px;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 13px;
-      font-weight: bold;
-      color: #fff;
-      text-align: center;
-      background: transparent;
-      pointer-events: none;
-    }
-
-    #startPrompt.is-visible {
-      display: grid;
-    }
-
-    #startPrompt span {
-      display: block;
-      margin-top: 12px;
-      animation: start-prompt-flash 1.5s ease-in-out infinite;
-    }
-
-    @keyframes start-prompt-flash {
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.35;
-      }
-    }
-
     @media (prefers-reduced-motion: reduce) {
-      #startPrompt span {
-        animation: none;
-      }
-
       .loadingDots {
         width: 1.5em;
         animation: none;
@@ -195,7 +153,6 @@
   <audio id="bgmusic" src="music.mp3" loop preload="none"></audio>
   <div id="flash"></div>
   <div id="overlayLayer"></div>
-  <div id="startPrompt" aria-hidden="true"><span>Click to play</span></div>
   <div id="cursor"></div>
   <div id="loadingScreen" role="status" aria-live="polite">
     <div class="loadingCopy">
@@ -209,7 +166,6 @@
     const bgmusic = document.getElementById("bgmusic");
     const flash = document.getElementById("flash");
     const overlayLayer = document.getElementById("overlayLayer");
-    const startPrompt = document.getElementById("startPrompt");
     const cursor = document.getElementById("cursor");
     const loadingScreen = document.getElementById("loadingScreen");
     const loadingLabel = document.getElementById("loadingLabel");
@@ -244,8 +200,6 @@
     const danceClickSize = 900;
     const dance4ClickSize = 680;
     const maxActiveOverlays = 3;
-    const gameStartedStorageKey = "gingerCatGameStarted";
-
     let state = "idle";
     let hasStartedAudio = false;
     let bgMusicStarted = false;
@@ -264,8 +218,7 @@
     let slowLoadingTimeout = null;
     let idleVideoReady = false;
     let gameAssetsReady = false;
-    let isAwaitingStart = false;
-    let hasGameStarted = wasGamePreviouslyStarted();
+    const hasGameStarted = true;
     let analyticsGameStarted = false;
     let analyticsGameStartedAt = 0;
     let analyticsInteractionCount = 0;
@@ -341,22 +294,6 @@
       });
     }
 
-    function wasGamePreviouslyStarted() {
-      try {
-        return sessionStorage.getItem(gameStartedStorageKey) === "true";
-      } catch (error) {
-        return false;
-      }
-    }
-
-    function rememberGameStarted() {
-      try {
-        sessionStorage.setItem(gameStartedStorageKey, "true");
-      } catch (error) {
-        // Storage can be unavailable when the game is opened as a local file.
-      }
-    }
-
     video.disablePictureInPicture = true;
     video.disableRemotePlayback = true;
 
@@ -415,41 +352,6 @@
       trackCatGameEvent("cat_game_ready");
     }
 
-    function showStartPrompt() {
-      if (isMobilePlayback()) {
-        return;
-      }
-
-      isAwaitingStart = true;
-      video.pause();
-      video.currentTime = 0;
-      startPrompt.classList.add("is-visible");
-      startPrompt.setAttribute("aria-hidden", "false");
-    }
-
-    function beginGame(x, y) {
-      if (!isAwaitingStart) {
-        return false;
-      }
-
-      isAwaitingStart = false;
-      hasGameStarted = true;
-      rememberGameStarted();
-      trackCatGameInteraction("start_click");
-      startPrompt.classList.remove("is-visible");
-      startPrompt.setAttribute("aria-hidden", "true");
-      video.play().catch((error) => {
-        console.log("Idle play failed:", error);
-      });
-      startBackgroundMusic();
-
-      if (Number.isFinite(x) && Number.isFinite(y)) {
-        playIdleClickOverlay(x, y);
-      }
-
-      return true;
-    }
-
     function showLoadingMessage(message, keepLoading = false) {
       if (!hasHiddenLoadingScreen) {
         loadingLabel.hidden = !keepLoading;
@@ -459,10 +361,6 @@
 
     function finishLoadingWhenReady() {
       if (idleVideoReady && gameAssetsReady) {
-        if (!hasGameStarted) {
-          showStartPrompt();
-        }
-
         hideLoadingScreen();
         resumeGame();
       }
@@ -588,10 +486,6 @@
     }
 
     function resumeGame() {
-      if (!hasGameStarted || isAwaitingStart) {
-        return;
-      }
-
       video.play().catch((error) => {
         console.log("Game resume failed:", error);
       });
@@ -866,7 +760,6 @@
 
     document.addEventListener("click", async (event) => {
       if (Date.now() < ignoreClickUntil) return;
-      if (beginGame(event.clientX, event.clientY)) return;
       trackCatGameInteraction("click");
       await handleMouseClick(event.clientX, event.clientY);
       await maybeTriggerKeyboardAction();
@@ -875,14 +768,12 @@
     document.addEventListener("contextmenu", async (event) => {
       event.preventDefault();
       if (Date.now() < ignoreClickUntil) return;
-      if (beginGame()) return;
       trackCatGameInteraction("contextmenu");
       await handleMouseClick(event.clientX, event.clientY);
       await maybeTriggerKeyboardAction();
     });
 
     document.addEventListener("keydown", async () => {
-      if (beginGame()) return;
       trackCatGameInteraction("keyboard");
       await handleMouseClick(cursorX, cursorY);
       await maybeTriggerKeyboardAction();

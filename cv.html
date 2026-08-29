@@ -21,10 +21,12 @@
     <a class="site-title" href="index.html">Kara Chin</a>
 
     <nav class="site-nav" aria-label="Main navigation">
-      <a href="work.html?feed=top&open=first">Work</a>
+      <a href="work.html?feed=top&open=first" data-work-menu-toggle aria-controls="work-menu" aria-expanded="false">Work</a>
       <a class="is-current" href="cv.html">CV</a>
     </nav>
   </header>
+
+  <aside id="work-menu" class="image-feed" data-work-menu aria-label="Selected work image feed" aria-hidden="true" inert></aside>
 
   <main class="cv-page">
     <section>
@@ -47,6 +49,8 @@
 
     <section>
       <h2>Selected Group Exhibitions</h2>
+      <p>2026 Restons Unis 2, Perrotin, with Hatch Gallery, Paris</p>
+      <p>2026 I Brought You My Flowers, Schlachter 151, Berlin</p>
       <p>2026 <a href="work-pages/pity-petty.html">Pity Petty</a>, Hatch, Paris</p>
       <p>2026 1, 2, Glissade et Changement, Hatch, Paris</p>
       <p>2026 Break The Mould, Ikon Gallery, Birmingham UK</p>
@@ -131,6 +135,8 @@
   </footer>
 
   <script src="copy-email.js"></script>
+  <script src="work-list.js"></script>
+  <script src="work-menu.js"></script>
   <script>
     document.querySelectorAll(".cv-page section").forEach((section) => {
       let previousYear = null;
