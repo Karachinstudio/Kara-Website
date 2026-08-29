@@ -426,6 +426,9 @@ a:hover {
     transform: none;
   }
 
+}
+
+@media (min-width: 1200px) {
   .home-page .on-now-preview {
     display: block;
     position: absolute;
@@ -437,6 +440,10 @@ a:hover {
     visibility: hidden;
     pointer-events: none;
     transition: opacity 160ms ease, visibility 160ms ease;
+  }
+
+  .home-page .restons-unis-preview {
+    width: 64%;
   }
 
   .home-page .on-now-link:hover .on-now-preview,
@@ -892,8 +899,23 @@ img.image-load-error {
     padding-left: 0;
   }
 
+  .home-page .site-header,
+  .cv-index-page .site-header {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 20px;
+    padding-left: 0;
+  }
+
+  .home-page .site-nav,
+  .cv-index-page .site-nav {
+    width: auto;
+    margin-left: 0;
+  }
+
   .cv-index-page .cv-page {
-    padding-left: calc(var(--feed-width) + var(--feed-gap));
+    width: 100%;
+    padding-left: 0;
   }
 
   .home-page .on-now {
@@ -915,7 +937,7 @@ img.image-load-error {
   }
 
   .homepage-game-block {
-    display: none;
+    display: none !important;
   }
 
   .homepage-game {
