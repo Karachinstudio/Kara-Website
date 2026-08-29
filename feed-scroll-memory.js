@@ -38,7 +38,7 @@
   feed.addEventListener("click", saveFeedPosition, true);
 
   const workLink = document.querySelector(".site-nav a.is-current");
-  const desktopQuery = window.matchMedia("(min-width: 701px)");
+  const desktopQuery = window.matchMedia("(min-width: 901px)");
 
   if (document.body.classList.contains("project-page") && workLink) {
     workLink.setAttribute("aria-expanded", "true");
