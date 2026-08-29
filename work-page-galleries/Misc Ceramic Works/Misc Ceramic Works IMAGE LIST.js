@@ -1,6 +1,42 @@
 ﻿// Images for Misc Ceramic Works, in display order.
 window.IMAGE_LIST = [
   {
+    file: "web/misc-ceramic-works-36.jpg",
+    title: "Cannonball Tree",
+    info: "2026. 25 x 19 x 4 cm. Glazed stoneware ceramic, strand-woven tiger bamboo backing, pigmented mortar. Photography by Charlotte Walter.",
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Cannonball Tree: 2026. 25 x 19 x 4 cm. Glazed stoneware ceramic, strand-woven tiger bamboo backing, pigmented mortar: ceramic artwork, mixed media artwork"
+  },
+  {
+    file: "web/misc-ceramic-works-37.jpg",
+    title: "Cannonball Tree",
+    info: "2026. 25 x 19 x 4 cm. Glazed stoneware ceramic, strand-woven tiger bamboo backing, pigmented mortar. Photography by Charlotte Walter.",
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Cannonball Tree: 2026. 25 x 19 x 4 cm. Glazed stoneware ceramic, strand-woven tiger bamboo backing, pigmented mortar: ceramic artwork, mixed media artwork"
+  },
+  {
+    file: "web/misc-ceramic-works-38.jpg",
+    title: "Heat Lightning",
+    info: "2026. 21 x 17 x 2.5 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar. Photography by Charlotte Walter.",
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Heat Lightning: 2026. 21 x 17 x 2.5 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar: ceramic artwork, mixed media artwork"
+  },
+  {
+    file: "web/misc-ceramic-works-39.jpg",
+    title: "Heat Lightning",
+    info: "2026. 21 x 17 x 2.5 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar. Photography by Charlotte Walter.",
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Heat Lightning: 2026. 21 x 17 x 2.5 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar: ceramic artwork, mixed media artwork"
+  },
+  {
+    file: "web/misc-ceramic-works-40.jpg",
+    title: "Airport Rainforest",
+    info: "2026. 28 x 22 x 3 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar. Photography by Charlotte Walter.",
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Airport Rainforest: 2026. 28 x 22 x 3 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar: ceramic artwork, mixed media artwork"
+  },
+  {
+    file: "web/misc-ceramic-works-41.jpg",
+    title: "Airport Rainforest",
+    info: "2026. 28 x 22 x 3 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar. Photography by Charlotte Walter.",
+    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Airport Rainforest: 2026. 28 x 22 x 3 cm. Glazed stoneware ceramic, oak and rosewood backing, pigmented mortar: ceramic artwork, mixed media artwork"
+  },
+  {
     file: "web/misc-ceramic-works-01.jpg",
     title: "A Cave Door",
     info: "34 x 24 x 4 cm. Glazed stoneware ceramic, tile grout, pigment, bracket: timber, acrylic paint, resin. Photography by Steven Devillis NY.",
