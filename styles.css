@@ -442,10 +442,6 @@ a:hover {
     transition: opacity 160ms ease, visibility 160ms ease;
   }
 
-  .home-page .restons-unis-preview {
-    width: 64%;
-  }
-
   .home-page .on-now-link:hover .on-now-preview,
   .home-page .on-now-link:focus-visible .on-now-preview {
     opacity: 1;
