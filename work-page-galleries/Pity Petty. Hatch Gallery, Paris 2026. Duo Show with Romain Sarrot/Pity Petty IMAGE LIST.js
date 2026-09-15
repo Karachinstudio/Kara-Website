@@ -13,19 +13,7 @@ window.IMAGE_LIST = [
     alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Installation view by Kara Chin and Romain Sarrot: installation view"
   },
   {
-    file: "web/pity-petty-03.jpg",
-    title: "",
-    info: "Installation view by Kara Chin and Romain Sarrot. Photography by Pauline Assathiany.",
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Installation view by Kara Chin and Romain Sarrot: installation view"
-  },
-  {
     file: "web/pity-petty-04.jpg",
-    title: "",
-    info: "Installation view by Kara Chin and Romain Sarrot. Photography by Pauline Assathiany.",
-    alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Installation view by Kara Chin and Romain Sarrot: installation view"
-  },
-  {
-    file: "web/pity-petty-05.jpg",
     title: "",
     info: "Installation view by Kara Chin and Romain Sarrot. Photography by Pauline Assathiany.",
     alt: "Kara Chin artwork by a Singaporean British UK artist and ceramicist: Installation view by Kara Chin and Romain Sarrot: installation view"

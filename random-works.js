@@ -48,7 +48,6 @@ window.RANDOM_WORKS = [
   "Negative Energy Released from the Big Stone Egg. 2025. 31 x 23 x 4cm. Glazed stoneware ceramic, gold leaf, tile grout, pigment (bracket - timber, acrylic paint, resin) Photography by Steven Devillis NY .jpg",
   "Nurturing Nodes in the Nook of an Odd Sock. Gallery Miyauchi, Hiroshima 2024. Group.jpg",
   "Pasta Legs Starch Warrior 2020 - Installation View Baltic39.jpg",
-  "Pity Petty Installation views by Kara Chin and Romain Sarrot, Hatch Gallery, Paris, 2026. © Pauline Assathiany. Courtesy of the Artists and Hatch Gallery. 03.jpg",
   "PSSA Kitchen Mayhem 03.jpg",
   "Quiet Table 5.jpg",
   "Rover 01.jpg",
