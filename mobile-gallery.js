@@ -58,17 +58,7 @@
   let fullscreenPanStartY = 0;
   let fullscreenPanBaseX = 0;
   let fullscreenPanBaseY = 0;
-  let figureScale = 1;
-  let figureBaseScale = 1;
-  let figurePinchDistance = 0;
-  let figurePanX = 0;
-  let figurePanY = 0;
-  let figureStartX = 0;
-  let figureStartY = 0;
-  let figureBaseX = 0;
-  let figureBaseY = 0;
-  let figureGesture = false;
-  let figureGestureMedia = null;
+  let pagePinchActive = false;
 
   function visibleMedia() {
     return figure.querySelector("img:not([hidden]), video:not([hidden])");
@@ -122,39 +112,6 @@
       x: (touches[0].clientX + touches[1].clientX) / 2,
       y: (touches[0].clientY + touches[1].clientY) / 2
     };
-  }
-
-  function resetFigureZoom() {
-    if (figureGestureMedia) {
-      figureGestureMedia.style.transform = "";
-      figureGestureMedia.style.transition = "";
-    }
-    figureScale = 1;
-    figureBaseScale = 1;
-    figurePinchDistance = 0;
-    figurePanX = 0;
-    figurePanY = 0;
-    figureGesture = false;
-    figureGestureMedia = null;
-    figure.classList.remove("is-pinch-zoomed");
-  }
-
-  function applyFigureZoom() {
-    const media = figureGestureMedia;
-    if (!media) return;
-    if (figureScale <= 1.01) {
-      figureScale = 1;
-      figurePanX = 0;
-      figurePanY = 0;
-    }
-    const maxX = (media.offsetWidth * (figureScale - 1)) / 2;
-    const maxY = (media.offsetHeight * (figureScale - 1)) / 2;
-    figurePanX = Math.max(-maxX, Math.min(maxX, figurePanX));
-    figurePanY = Math.max(-maxY, Math.min(maxY, figurePanY));
-    media.style.transition = "none";
-    media.style.transform = figureScale === 1 ? "" :
-      `translate3d(${figurePanX}px, ${figurePanY}px, 0) scale(${figureScale})`;
-    figure.classList.toggle("is-pinch-zoomed", figureScale > 1);
   }
 
   function resetFullscreenPinch() {
@@ -338,42 +295,14 @@
   }
 
   figure.addEventListener("touchstart", (event) => {
-    if (!mobileQuery.matches || isAnimating) return;
     if (event.touches.length >= 2) {
-      const media = visibleMedia();
-      if (!media || media.tagName !== "IMG") return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (figureGestureMedia !== media) {
-        resetFigureZoom();
-        media.style.transform = "";
-      }
-      figureGestureMedia = media;
-      figureGesture = true;
+      pagePinchActive = true;
       isDragging = false;
       isHorizontal = false;
       suppressClick = true;
-      figurePinchDistance = touchDistance(event.touches);
-      figureBaseScale = figureScale;
-      const middle = touchMidpoint(event.touches);
-      figureStartX = middle.x;
-      figureStartY = middle.y;
-      figureBaseX = figurePanX;
-      figureBaseY = figurePanY;
       return;
     }
-    if (figureScale > 1) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      figureGesture = true;
-      figurePinchDistance = 0;
-      figureStartX = event.touches[0].clientX;
-      figureStartY = event.touches[0].clientY;
-      figureBaseX = figurePanX;
-      figureBaseY = figurePanY;
-      return;
-    }
-    if (!mobileQuery.matches || isAnimating || event.touches.length !== 1) return;
+    if (!mobileQuery.matches || isAnimating || pagePinchActive || event.touches.length !== 1) return;
 
     startX = event.touches[0].clientX;
     startY = event.touches[0].clientY;
@@ -384,21 +313,13 @@
   }, { capture: true, passive: true });
 
   figure.addEventListener("touchmove", (event) => {
-    if (figureGesture) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (event.touches.length >= 2 && figurePinchDistance) {
-        const middle = touchMidpoint(event.touches);
-        figureScale = Math.max(1, Math.min(5, figureBaseScale * touchDistance(event.touches) / figurePinchDistance));
-        figurePanX = figureBaseX + middle.x - figureStartX;
-        figurePanY = figureBaseY + middle.y - figureStartY;
-      } else if (event.touches.length === 1 && !figurePinchDistance) {
-        figurePanX = figureBaseX + event.touches[0].clientX - figureStartX;
-        figurePanY = figureBaseY + event.touches[0].clientY - figureStartY;
-      }
-      applyFigureZoom();
-      return;
+    if (event.touches.length >= 2) {
+      pagePinchActive = true;
+      isDragging = false;
+      isHorizontal = false;
+      suppressClick = true;
     }
+    if (pagePinchActive) return;
     if (!mobileQuery.matches || !isDragging || event.touches.length !== 1) return;
 
     deltaX = event.touches[0].clientX - startX;
@@ -421,17 +342,10 @@
   }, { capture: true, passive: false });
 
   figure.addEventListener("touchend", (event) => {
-    if (figureGesture) {
-      event.preventDefault();
+    if (pagePinchActive) {
       event.stopImmediatePropagation();
-      if (event.touches.length === 1 && figureScale > 1) {
-        figurePinchDistance = 0;
-        figureStartX = event.touches[0].clientX;
-        figureStartY = event.touches[0].clientY;
-        figureBaseX = figurePanX;
-        figureBaseY = figurePanY;
-      } else if (event.touches.length === 0) {
-        figureGesture = false;
+      if (event.touches.length === 0) {
+        pagePinchActive = false;
         window.setTimeout(() => { suppressClick = false; }, 350);
       }
       return;
@@ -463,8 +377,8 @@
   }, { capture: true, passive: false });
 
   figure.addEventListener("touchcancel", () => {
-    if (figureGesture) {
-      figureGesture = false;
+    if (pagePinchActive) {
+      pagePinchActive = false;
       window.setTimeout(() => { suppressClick = false; }, 350);
       return;
     }
@@ -555,39 +469,20 @@
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    if (suppressClick || isAnimating || figureScale > 1) return;
+    if (suppressClick || isAnimating) return;
 
     beginMediaLoad(figure, visibleMedia());
     showGalleryImage(currentIndex() + 1);
   }, { capture: true });
 
   fullscreen.addEventListener("touchstart", (event) => {
-    if (mobileQuery.matches && !isFullscreenAnimating && event.touches.length >= 2) {
-      const media = visibleFullscreenMedia();
-
-      if (!media || media.tagName !== "IMG" || event.target.closest("button")) return;
-
-      event.preventDefault();
+    if (mobileQuery.matches && event.touches.length >= 2) {
       event.stopImmediatePropagation();
+      pagePinchActive = true;
       clearTimeout(fullscreenTapTimer);
       isFullscreenDragging = false;
       isFullscreenHorizontal = false;
       suppressFullscreenClick = true;
-
-      if (fullscreenPinchMedia !== media || !media.style.transform) {
-        resetFullscreenPinch();
-        fullscreenPinchMedia = media;
-      }
-
-      const midpoint = touchMidpoint(event.touches);
-      fullscreenPinchActive = true;
-      fullscreenPanActive = false;
-      fullscreenPinchStartDistance = touchDistance(event.touches);
-      fullscreenPinchStartX = midpoint.x;
-      fullscreenPinchStartY = midpoint.y;
-      fullscreenPinchBaseScale = fullscreenPinchScale;
-      fullscreenPinchBaseX = fullscreenPinchX;
-      fullscreenPinchBaseY = fullscreenPinchY;
       return;
     }
 
@@ -635,6 +530,10 @@
   }, { capture: true, passive: false });
 
   fullscreen.addEventListener("touchmove", (event) => {
+    if (pagePinchActive) {
+      event.stopImmediatePropagation();
+      return;
+    }
     if (fullscreenPinchActive) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -711,6 +610,14 @@
   }, { capture: true, passive: false });
 
   fullscreen.addEventListener("touchend", (event) => {
+    if (pagePinchActive) {
+      event.stopImmediatePropagation();
+      if (event.touches.length === 0) {
+        pagePinchActive = false;
+        window.setTimeout(() => { suppressFullscreenClick = false; }, 350);
+      }
+      return;
+    }
     if (fullscreenPinchActive) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -796,6 +703,12 @@
   }, { capture: true, passive: false });
 
   fullscreen.addEventListener("touchcancel", (event) => {
+    if (pagePinchActive) {
+      event.stopImmediatePropagation();
+      pagePinchActive = false;
+      window.setTimeout(() => { suppressFullscreenClick = false; }, 350);
+      return;
+    }
     const wasFullscreenPinching = fullscreenPinchActive;
 
     if (fullscreenPinchActive) {
@@ -847,10 +760,7 @@
     }, 280);
   }, true);
 
-  new MutationObserver(() => {
-    resetFigureZoom();
-    updateDots();
-  }).observe(count, {
+  new MutationObserver(updateDots).observe(count, {
     childList: true,
     characterData: true,
     subtree: true

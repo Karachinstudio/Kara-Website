@@ -1094,11 +1094,7 @@ img.image-load-error {
     min-width: 0;
     place-items: center;
     overflow: hidden;
-    touch-action: pan-y;
-  }
-
-  .single-gallery-figure.is-pinch-zoomed {
-    touch-action: none;
+    touch-action: pan-y pinch-zoom;
   }
 
   .single-gallery-figure.is-media-loading::after,
@@ -1181,7 +1177,7 @@ img.image-load-error {
   }
 
   .fullscreen-gallery {
-    touch-action: none;
+    touch-action: pinch-zoom;
   }
 
   .gallery-intro h1,
