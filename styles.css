@@ -1097,6 +1097,10 @@ img.image-load-error {
     touch-action: pan-y;
   }
 
+  .single-gallery-figure.is-pinch-zoomed {
+    touch-action: none;
+  }
+
   .single-gallery-figure.is-media-loading::after,
   .fullscreen-gallery.is-media-loading::after {
     content: "";
